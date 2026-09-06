@@ -5,6 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { createPosition } from './services/create';
 import { findAllPosition } from './services/findall';
 import { findOnePosition } from './services/findone';
+import { selectPosition } from './services/selectposition';
 
 @Injectable()
 export class PositionService {
@@ -16,6 +17,10 @@ export class PositionService {
 
   findAll() {
     return findAllPosition(this.prisma);
+  }
+
+  selectPosition() {
+    return selectPosition(this.prisma);
   }
 
   findOne(id: number) {

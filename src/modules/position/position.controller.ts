@@ -21,6 +21,11 @@ export class PositionController {
     return this.positionService.findAll();
   }
 
+  @Get('/selectposition')
+  selectPosition() {
+    return this.positionService.selectPosition();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.positionService.findOne(+id);
