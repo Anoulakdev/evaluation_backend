@@ -28,10 +28,14 @@ export async function updateUnit(
         unit_type: updateUnitDto.unit_type,
       }),
       ...(updateUnitDto.divisionId !== undefined && {
-        divisionId: updateUnitDto.divisionId ? Number(updateUnitDto.divisionId) : null,
+        divisionId: updateUnitDto.divisionId
+          ? Number(updateUnitDto.divisionId)
+          : null,
       }),
       ...(updateUnitDto.officeId !== undefined && {
-        officeId: updateUnitDto.officeId ? Number(updateUnitDto.officeId) : null,
+        officeId: updateUnitDto.officeId
+          ? Number(updateUnitDto.officeId)
+          : null,
       }),
     },
   });

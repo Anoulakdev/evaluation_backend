@@ -28,7 +28,9 @@ export async function updateDivision(
         departmentId: Number(updateDivisionDto.departmentId),
       }),
       ...(updateDivisionDto.branch_id !== undefined && {
-        branch_id: updateDivisionDto.branch_id ? Number(updateDivisionDto.branch_id) : null,
+        branch_id: updateDivisionDto.branch_id
+          ? Number(updateDivisionDto.branch_id)
+          : null,
       }),
       ...(updateDivisionDto.short_name !== undefined && {
         short_name: updateDivisionDto.short_name,

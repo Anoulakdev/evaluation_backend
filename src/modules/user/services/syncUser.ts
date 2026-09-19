@@ -44,26 +44,28 @@ interface ApiEmployeeResponse {
 /* =======================
    Static O(1) Role Lookup Sets
 ======================= */
-const ROLE_4_POS_IDS = new Set([125, 5, 6, 7, 105, 126, 9, 11, 124, 10]);
-const ROLE_5_POS_IDS = new Set([
+const ROLE_4_POS_IDS = new Set([125, 124, 143, 5, 6, 7, 105]);
+const ROLE_5_POS_IDS = new Set([126, 144, 9, 11, 10]);
+const ROLE_6_POS_IDS = new Set([
   103, 17, 114, 18, 13, 16, 14, 19, 129, 134, 20, 141, 132, 22, 106, 15, 29,
   128, 131, 112, 127, 26, 21, 25, 24, 119, 121, 99, 27, 28, 90, 39, 47, 100,
-  120,
+  120, 145,
 ]);
-const ROLE_6_POS_IDS = new Set([107, 30, 116, 40, 133]);
-const ROLE_7_POS_IDS = new Set([
+const ROLE_7_POS_IDS = new Set([107, 30, 116, 40, 133]);
+const ROLE_8_POS_IDS = new Set([
   34, 136, 137, 104, 91, 50, 44, 45, 52, 51, 118, 102,
 ]);
 
 function getRoleIdByPosId(posId?: number | null): number {
-  if (!posId) return 8;
+  if (!posId) return 9;
   if (posId === 2) return 2;
   if (posId === 3) return 3;
   if (ROLE_4_POS_IDS.has(posId)) return 4;
   if (ROLE_5_POS_IDS.has(posId)) return 5;
   if (ROLE_6_POS_IDS.has(posId)) return 6;
   if (ROLE_7_POS_IDS.has(posId)) return 7;
-  return 8;
+  if (ROLE_8_POS_IDS.has(posId)) return 8;
+  return 9;
 }
 
 /* =======================
@@ -217,7 +219,9 @@ export async function syncUser(prisma: PrismaService, departmentId: number) {
               rawDeptId && validDeptIds.has(rawDeptId) ? rawDeptId : null,
             divisionId: rawDivId && validDivIds.has(rawDivId) ? rawDivId : null,
             officeId:
-              rawOfficeId && validOfficeIds.has(rawOfficeId) ? rawOfficeId : null,
+              rawOfficeId && validOfficeIds.has(rawOfficeId)
+                ? rawOfficeId
+                : null,
             unitId: rawUnitId && validUnitIds.has(rawUnitId) ? rawUnitId : null,
           };
 

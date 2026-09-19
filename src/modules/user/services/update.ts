@@ -10,16 +10,35 @@ export async function updateUser(
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) throw new NotFoundException('user not found');
 
+  const data: any = {};
+  if (updateUserDto.posId !== undefined) {
+    data.posId = updateUserDto.posId ? Number(updateUserDto.posId) : null;
+  }
+  if (updateUserDto.departmentId !== undefined) {
+    data.departmentId = updateUserDto.departmentId
+      ? Number(updateUserDto.departmentId)
+      : null;
+  }
+  if (updateUserDto.divisionId !== undefined) {
+    data.divisionId = updateUserDto.divisionId
+      ? Number(updateUserDto.divisionId)
+      : null;
+  }
+  if (updateUserDto.officeId !== undefined) {
+    data.officeId = updateUserDto.officeId
+      ? Number(updateUserDto.officeId)
+      : null;
+  }
+  if (updateUserDto.unitId !== undefined) {
+    data.unitId = updateUserDto.unitId ? Number(updateUserDto.unitId) : null;
+  }
+  if (updateUserDto.roleId !== undefined) {
+    data.roleId = updateUserDto.roleId ? Number(updateUserDto.roleId) : null;
+  }
+
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: {
-      posId: updateUserDto.posId,
-      departmentId: updateUserDto.departmentId,
-      divisionId: updateUserDto.divisionId,
-      officeId: updateUserDto.officeId,
-      unitId: updateUserDto.unitId,
-      roleId: updateUserDto.roleId,
-    },
+    data,
   });
 
   return {

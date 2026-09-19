@@ -18,7 +18,9 @@ export async function createUnit(
       unit_name: createUnitDto.unit_name,
       unit_code: createUnitDto.unit_code || null,
       unit_type: createUnitDto.unit_type || null,
-      divisionId: createUnitDto.divisionId ? Number(createUnitDto.divisionId) : null,
+      divisionId: createUnitDto.divisionId
+        ? Number(createUnitDto.divisionId)
+        : null,
       officeId: createUnitDto.officeId ? Number(createUnitDto.officeId) : null,
     },
   });

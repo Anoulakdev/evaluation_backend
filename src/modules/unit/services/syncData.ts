@@ -99,7 +99,9 @@ export async function syncData(
               ? d.divisionId
               : null;
           const officeId =
-            d.officeId !== null && officeIds.has(d.officeId) ? d.officeId : null;
+            d.officeId !== null && officeIds.has(d.officeId)
+              ? d.officeId
+              : null;
 
           return tx.unit.upsert({
             where: { id: d.id },

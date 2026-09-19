@@ -8,10 +8,28 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
         id: 'asc',
       },
     });
+  } else if (user.roleId === 9 && user.division?.branch_id === 1) {
+    return prisma.role.findMany({
+      where: {
+        id: { in: [6, 8] },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+  } else if (user.roleId === 9 && user.division?.branch_id === 2) {
+    return prisma.role.findMany({
+      where: {
+        id: { in: [7, 8] },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
   } else if (user.roleId === 8 && user.division?.branch_id === 1) {
     return prisma.role.findMany({
       where: {
-        id: { in: [5, 7] },
+        id: { in: [4, 5, 6, 8, 10] },
       },
       orderBy: {
         id: 'asc',
@@ -20,52 +38,43 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 8 && user.division?.branch_id === 2) {
     return prisma.role.findMany({
       where: {
-        id: { in: [5, 6, 7] },
+        id: { in: [6, 7, 8, 10] },
       },
       orderBy: {
         id: 'asc',
       },
     });
-  } else if (user.roleId === 7 && user.division?.branch_id === 1) {
+  } else if (user.roleId === 7) {
     return prisma.role.findMany({
       where: {
-        id: { in: [4, 5, 7, 9] },
+        id: { in: [6, 7, 8, 10] },
       },
       orderBy: {
         id: 'asc',
       },
     });
-  } else if (user.roleId === 7 && user.division?.branch_id === 2) {
+  } else if (user.roleId === 6 && user.division?.branch_id === 1) {
     return prisma.role.findMany({
       where: {
-        id: { in: [5, 6, 7, 9] },
+        id: { in: [4, 5, 6, 8, 10] },
       },
       orderBy: {
         id: 'asc',
       },
     });
-  } else if (user.roleId === 6) {
+  } else if (user.roleId === 6 && user.division?.branch_id === 2) {
     return prisma.role.findMany({
       where: {
-        id: { in: [5, 6, 7, 9] },
+        id: { in: [6, 7, 10] },
       },
       orderBy: {
         id: 'asc',
       },
     });
-  } else if (user.roleId === 5 && user.division?.branch_id === 1) {
+  } else if (user.roleId === 5) {
     return prisma.role.findMany({
       where: {
-        id: { in: [4, 5, 7, 9] },
-      },
-      orderBy: {
-        id: 'asc',
-      },
-    });
-  } else if (user.roleId === 5 && user.division?.branch_id === 2) {
-    return prisma.role.findMany({
-      where: {
-        id: { in: [4, 5, 6, 9] },
+        id: { in: [3, 4, 5, 6, 10] },
       },
       orderBy: {
         id: 'asc',
@@ -74,7 +83,7 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 4) {
     return prisma.role.findMany({
       where: {
-        id: { in: [3, 4, 5, 9] },
+        id: { in: [3, 4, 5, 6, 10] },
       },
       orderBy: {
         id: 'asc',
@@ -83,7 +92,7 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 3) {
     return prisma.role.findMany({
       where: {
-        id: { in: [3, 4, 9] },
+        id: { in: [3, 4, 5, 10] },
       },
       orderBy: {
         id: 'asc',
@@ -92,7 +101,7 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 2) {
     return prisma.role.findMany({
       where: {
-        id: { in: [3] },
+        id: { in: [3, 4, 5] },
       },
       orderBy: {
         id: 'asc',

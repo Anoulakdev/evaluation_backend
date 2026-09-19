@@ -20,7 +20,9 @@ export async function findAllUnit(
     andFilters.push({
       OR: [
         { division: { departmentId: Number(options.departmentId) } },
-        { office: { division: { departmentId: Number(options.departmentId) } } },
+        {
+          office: { division: { departmentId: Number(options.departmentId) } },
+        },
       ],
     });
   }
@@ -47,7 +49,11 @@ export async function findAllUnit(
           { unit_code: { contains: q, mode: 'insensitive' } },
           { division: { division_name: { contains: q, mode: 'insensitive' } } },
           { office: { office_name: { contains: q, mode: 'insensitive' } } },
-          { office: { division: { division_name: { contains: q, mode: 'insensitive' } } } },
+          {
+            office: {
+              division: { division_name: { contains: q, mode: 'insensitive' } },
+            },
+          },
         ],
       });
     }

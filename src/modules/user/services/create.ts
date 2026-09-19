@@ -78,6 +78,19 @@ export async function createUser(
   // Hash password beforehand (since it doesn't depend on DB state)
   const hashedPassword = await bcrypt.hash(process.env.DEFAULT_PASSWORD, 10);
 
+  let matchedEmployee: ApiEmployee | undefined;
+  try {
+    const employees = await fetchEmployees(createUserDto);
+    matchedEmployee = employees?.find(
+      (emp) => emp.emp_code === createUserDto.username,
+    );
+  } catch (err: unknown) {
+    console.warn(
+      `Could not fetch employee for username ${createUserDto.username}:`,
+      err,
+    );
+  }
+
   return prisma.$transaction(async (tx) => {
     // Check if username already exists
     const existingUser = await tx.user.findUnique({
@@ -87,20 +100,6 @@ export async function createUser(
     if (existingUser) {
       throw new ConflictException(
         'ຊື່ຜູ້ໃຊ້ / ລະຫັດພະນັກງານ ນີ້ມີຢູ່ໃນລະບົບແລ້ວ',
-      );
-    }
-
-    let matchedEmployee: ApiEmployee | undefined;
-
-    try {
-      const employees = await fetchEmployees(createUserDto);
-      matchedEmployee = employees?.find(
-        (emp) => emp.emp_code === createUserDto.username,
-      );
-    } catch (err: unknown) {
-      console.warn(
-        `Could not fetch employee for username ${createUserDto.username}:`,
-        err,
       );
     }
 

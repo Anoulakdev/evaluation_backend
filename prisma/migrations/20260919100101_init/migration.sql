@@ -228,10 +228,10 @@ CREATE INDEX "Total_giverId_idx" ON "Total"("giverId");
 CREATE INDEX "Total_receiverId_idx" ON "Total"("receiverId");
 
 -- CreateIndex
-CREATE INDEX "Total_giverId_receiverId_idx" ON "Total"("giverId", "receiverId");
+CREATE INDEX "Total_receiverId_roleId_idx" ON "Total"("receiverId", "roleId");
 
 -- CreateIndex
-CREATE INDEX "Total_receiverId_roleId_idx" ON "Total"("receiverId", "roleId");
+CREATE UNIQUE INDEX "Total_giverId_receiverId_key" ON "Total"("giverId", "receiverId");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -30,6 +30,7 @@ export class TotalService {
     page?: number,
     limit?: number,
     search?: string,
+    roleId?: number,
   ) {
     return resultAll(
       this.prisma,
@@ -38,6 +39,7 @@ export class TotalService {
       page,
       limit,
       search,
+      roleId,
     );
   }
 }

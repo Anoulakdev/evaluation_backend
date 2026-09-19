@@ -1,4 +1,4 @@
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 export async function updateStatus(
@@ -15,7 +15,7 @@ export async function updateStatus(
   // Optional: validate allowed status values
   const allowedStatuses = ['A', 'C']; // A = Active, C = Inactive
   if (!allowedStatuses.includes(actived)) {
-    throw new Error('Invalid status value');
+    throw new BadRequestException('Invalid status value. Allowed values are A (Active) or C (Inactive)');
   }
 
   await prisma.user.update({

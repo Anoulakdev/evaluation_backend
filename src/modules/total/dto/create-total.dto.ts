@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsInt, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsInt,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateTotalDto {
   @IsInt()
@@ -30,8 +36,8 @@ export class CreateTotalDto {
   s1_6: number;
 
   @IsInt()
-  @IsNotEmpty()
-  s1_score: number;
+  @IsOptional()
+  s1_score?: number;
 
   @IsInt()
   @IsNotEmpty()
@@ -54,8 +60,8 @@ export class CreateTotalDto {
   s2_5: number;
 
   @IsInt()
-  @IsNotEmpty()
-  s2_score: number;
+  @IsOptional()
+  s2_score?: number;
 
   @IsInt()
   @IsNotEmpty()
@@ -70,8 +76,8 @@ export class CreateTotalDto {
   s3_3: number;
 
   @IsInt()
-  @IsNotEmpty()
-  s3_score: number;
+  @IsOptional()
+  s3_score?: number;
 
   @IsInt()
   @IsNotEmpty()
@@ -82,14 +88,14 @@ export class CreateTotalDto {
   s4_2: number;
 
   @IsInt()
-  @IsNotEmpty()
-  s4_score: number;
+  @IsOptional()
+  s4_score?: number;
 
   @IsInt()
-  @IsNotEmpty()
-  total_score: number;
+  @IsOptional()
+  total_score?: number;
 
   @IsNumber()
-  @IsNotEmpty()
-  percent_score: number;
+  @IsOptional()
+  percent_score?: number;
 }

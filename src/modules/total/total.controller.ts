@@ -44,6 +44,7 @@ export class TotalController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('search') search?: string,
+    @Query('roleId') roleId?: number,
   ) {
     return this.totalService.resultAll(
       departmentId,
@@ -51,6 +52,7 @@ export class TotalController {
       page,
       limit,
       search,
+      roleId,
     );
   }
 }

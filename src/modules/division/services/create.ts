@@ -19,7 +19,9 @@ export async function createDivision(
       division_name: createDivisionDto.division_name,
       division_code: createDivisionDto.division_code || null,
       departmentId: Number(createDivisionDto.departmentId),
-      branch_id: createDivisionDto.branch_id ? Number(createDivisionDto.branch_id) : null,
+      branch_id: createDivisionDto.branch_id
+        ? Number(createDivisionDto.branch_id)
+        : null,
       short_name: createDivisionDto.short_name || null,
       insur_code: createDivisionDto.insur_code || null,
     },

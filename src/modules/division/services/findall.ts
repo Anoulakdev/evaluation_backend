@@ -26,7 +26,11 @@ export async function findAllDivision(
           { division_name: { contains: q, mode: 'insensitive' } },
           { division_code: { contains: q, mode: 'insensitive' } },
           { short_name: { contains: q, mode: 'insensitive' } },
-          { department: { department_name: { contains: q, mode: 'insensitive' } } },
+          {
+            department: {
+              department_name: { contains: q, mode: 'insensitive' },
+            },
+          },
         ],
       });
     }

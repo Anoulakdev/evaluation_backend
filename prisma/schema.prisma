@@ -196,6 +196,6 @@ model Total {
 
   @@index([giverId])
   @@index([receiverId])
-  @@index([giverId, receiverId])
+  @@unique([giverId, receiverId])
   @@index([receiverId, roleId])
 }

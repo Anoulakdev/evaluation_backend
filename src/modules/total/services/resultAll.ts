@@ -51,14 +51,15 @@ function computeReceiverScore(
     const found = items.find((t) => t.roleId === id)?.role?.name;
     if (found) return found;
     const roleMap: Record<number, string> = {
-      2: 'ຜູ້ອຳນວຍການໃຫຍ່',
-      3: 'ຮອງຜູ້ອຳນວຍການໃຫ່ຍ',
-      4: 'ຄະນະຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
-      5: 'ຄະນະພະແນກ/ສູນ/ສາຂາ',
-      6: 'ຄະນະຫ້ອງການ',
-      7: 'ຄະນະໜ່ວຍງານ',
-      8: 'ວິຊາການ',
-      9: 'ປະເມີນຕົນເອງ',
+      2: 'ຜູ້ອຳນວຍການ',
+      3: 'ຮອງຜູ້ອຳນວຍການ',
+      4: 'ຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
+      5: 'ຮອງຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
+      6: 'ຄະນະພະແນກ/ສູນ/ສາຂາ',
+      7: 'ຄະນະຫ້ອງການ',
+      8: 'ຄະນະໜ່ວຍງານ',
+      9: 'ວິຊາການ',
+      10: 'ປະເມີນຕົນເອງ',
     };
     return roleMap[id] || `Role ${id}`;
   };
@@ -66,13 +67,13 @@ function computeReceiverScore(
   let weightedCalculation: any = null;
   let finalTotal: number = 0;
 
-  if (receiverRoleId === 7) {
+  if (receiverRoleId === 8) {
     // ----------------------------------------------------
-    // ROLE ID 7 (ພະນັກງານທົ່ວໄປ)
+    // ROLE ID 8 (ຄະນະໜ່ວຍງານ)
     // ----------------------------------------------------
-    const avg7True = getAvg((i) => i.roleId === 7 && i.together === true);
-    const avg8 = getAvg((i) => i.roleId === 8);
-    const validGroupAScores = [avg7True, avg8].filter(
+    const avg8True = getAvg((i) => i.roleId === 8 && i.together === true);
+    const avg9 = getAvg((i) => i.roleId === 9);
+    const validGroupAScores = [avg8True, avg9].filter(
       (s): s is number => s !== null,
     );
     const avgGroupA =
@@ -86,69 +87,141 @@ function computeReceiverScore(
         : 95;
     const weightA = Number(((avgGroupA * 35) / 100).toFixed(2));
 
-    const rawAvg7False = getAvg((i) => i.roleId === 7 && i.together === false);
-    const avgGroupB = rawAvg7False !== null ? rawAvg7False : 95;
+    const rawAvg8False = getAvg((i) => i.roleId === 8 && i.together === false);
+    const avgGroupB = rawAvg8False !== null ? rawAvg8False : 95;
     const weightB = Number(((avgGroupB * 20) / 100).toFixed(2));
 
-    const targetMiddleRoleId = branchId === 2 ? 6 : 5;
+    const targetMiddleRoleId = branchId === 2 ? 7 : 6;
     const avgMiddle = getAvg((i) => i.roleId === targetMiddleRoleId) || 0;
     const weightC = Number(((avgMiddle * 30) / 100).toFixed(2));
 
-    const avg9 = getAvg((i) => i.roleId === 9) || 0;
-    const weightD = Number(((avg9 * 15) / 100).toFixed(2));
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightD = Number(((avg10 * 15) / 100).toFixed(2));
 
     finalTotal = Number((weightA + weightB + weightC + weightD).toFixed(2));
 
     weightedCalculation = {
-      receiver_roleId: 7,
+      receiver_roleId: 8,
       branch_id: branchId,
       groupA: {
-        label: `${getRoleName(7)} (ພາຍໃນໜ່ວຍງານ) + ${getRoleName(8)}`,
+        label: `${getRoleName(8)} (ພາຍໃນ) + ${getRoleName(9)}`,
         weight_percent: 35,
         avg_score: avgGroupA,
         weighted_score: weightA,
       },
       groupB: {
-        label: `${getRoleName(7)}`,
+        label: `${getRoleName(8)}`,
         weight_percent: 20,
         avg_score: avgGroupB,
         weighted_score: weightB,
       },
       groupC: {
-        label: branchId === 2 ? getRoleName(6) : getRoleName(5),
+        label: branchId === 2 ? getRoleName(7) : getRoleName(6),
         weight_percent: 30,
         avg_score: avgMiddle,
         weighted_score: weightC,
       },
       groupD: {
-        label: getRoleName(9),
+        label: getRoleName(10),
         weight_percent: 15,
-        avg_score: avg9,
+        avg_score: avg10,
         weighted_score: weightD,
+      },
+      final_weighted_total: finalTotal,
+    };
+  } else if (receiverRoleId === 7) {
+    // ----------------------------------------------------
+    // ROLE ID 7 (ຄະນະຫ້ອງການ)
+    // ----------------------------------------------------
+    const avg7True = getAvg((i) => i.roleId === 7 && i.together === true) || 0;
+    const weightA = Number(((avg7True * 15) / 100).toFixed(2));
+
+    const avg7False =
+      getAvg((i) => i.roleId === 7 && i.together === false) || 0;
+    const weightB = Number(((avg7False * 15) / 100).toFixed(2));
+
+    const avg8 = getAvg((i) => i.roleId === 8);
+    const avg9 = getAvg((i) => i.roleId === 9);
+    const combinedSubordinates = getCombined([avg8, avg9]);
+    const weightC = Number(((combinedSubordinates * 25) / 100).toFixed(2));
+
+    const avg6 = getAvg((i) => i.roleId === 6) || 0;
+    const weightD = Number(((avg6 * 30) / 100).toFixed(2));
+
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightE = Number(((avg10 * 15) / 100).toFixed(2));
+
+    finalTotal = Number(
+      (weightA + weightB + weightC + weightD + weightE).toFixed(2),
+    );
+
+    weightedCalculation = {
+      receiver_roleId: 7,
+      branch_id: branchId,
+      groupA: {
+        label: `${getRoleName(7)} (ພາຍໃນ)`,
+        weight_percent: 15,
+        avg_score: avg7True,
+        weighted_score: weightA,
+      },
+      groupB: {
+        label: `${getRoleName(7)}`,
+        weight_percent: 15,
+        avg_score: avg7False,
+        weighted_score: weightB,
+      },
+      groupC: {
+        label: `${getRoleName(8)} + ${getRoleName(9)}`,
+        weight_percent: 25,
+        avg_score: combinedSubordinates,
+        weighted_score: weightC,
+      },
+      groupD: {
+        label: getRoleName(6),
+        weight_percent: 30,
+        avg_score: avg6,
+        weighted_score: weightD,
+      },
+      groupE: {
+        label: getRoleName(10),
+        weight_percent: 15,
+        avg_score: avg10,
+        weighted_score: weightE,
       },
       final_weighted_total: finalTotal,
     };
   } else if (receiverRoleId === 6) {
     // ----------------------------------------------------
-    // ROLE ID 6 (ຫົວໜ້າຫ້ອງການ)
+    // ROLE ID 6 (ຄະນະພະແນກ/ສູນ/ສາຂາ)
     // ----------------------------------------------------
+    let combinedSubordinates = 0;
+    if (branchId === 2) {
+      const avg7 = getAvg((i) => i.roleId === 7);
+      const avg8 = getAvg((i) => i.roleId === 8);
+      combinedSubordinates = getCombined([avg7, avg8]);
+    } else {
+      const avg8 = getAvg((i) => i.roleId === 8);
+      const avg9 = getAvg((i) => i.roleId === 9);
+      combinedSubordinates = getCombined([avg8, avg9]);
+    }
+    const weightA = Number(((combinedSubordinates * 25) / 100).toFixed(2));
+
     const avg6True = getAvg((i) => i.roleId === 6 && i.together === true) || 0;
-    const weightA = Number(((avg6True * 15) / 100).toFixed(2));
+    const weightB = Number(((avg6True * 15) / 100).toFixed(2));
 
     const avg6False =
-      getAvg((i) => i.roleId === 6 && i.together === false) || 0;
-    const weightB = Number(((avg6False * 15) / 100).toFixed(2));
+      (branchId === 2
+        ? getAvg((i) => i.roleId === 6 && i.giver?.division?.branch_id === 1)
+        : getAvg((i) => i.roleId === 6 && i.together === false)) || 0;
+    const weightC = Number(((avg6False * 15) / 100).toFixed(2));
 
-    const avg7 = getAvg((i) => i.roleId === 7);
-    const avg8 = getAvg((i) => i.roleId === 8);
-    const combinedSubordinates = getCombined([avg7, avg8]);
-    const weightC = Number(((combinedSubordinates * 25) / 100).toFixed(2));
+    const avg4 = getAvg((i) => i.roleId === 4);
+    const avg5 = getAvg((i) => i.roleId === 5);
+    const combinedSuperiors = getCombined([avg4, avg5]);
+    const weightD = Number(((combinedSuperiors * 30) / 100).toFixed(2));
 
-    const avg5 = getAvg((i) => i.roleId === 5) || 0;
-    const weightD = Number(((avg5 * 30) / 100).toFixed(2));
-
-    const avg9 = getAvg((i) => i.roleId === 9) || 0;
-    const weightE = Number(((avg9 * 15) / 100).toFixed(2));
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightE = Number(((avg10 * 15) / 100).toFixed(2));
 
     finalTotal = Number(
       (weightA + weightB + weightC + weightD + weightE).toFixed(2),
@@ -158,66 +231,62 @@ function computeReceiverScore(
       receiver_roleId: 6,
       branch_id: branchId,
       groupA: {
-        label: `${getRoleName(6)} (ພາຍໃນຫ້ອງການ)`,
-        weight_percent: 15,
-        avg_score: avg6True,
+        label:
+          branchId === 2
+            ? `${getRoleName(7)} + ${getRoleName(8)}`
+            : `${getRoleName(8)} + ${getRoleName(9)}`,
+        weight_percent: 25,
+        avg_score: combinedSubordinates,
         weighted_score: weightA,
       },
       groupB: {
-        label: `${getRoleName(6)}`,
+        label: `${getRoleName(6)} (ພາຍໃນ)`,
         weight_percent: 15,
-        avg_score: avg6False,
+        avg_score: avg6True,
         weighted_score: weightB,
       },
       groupC: {
-        label: `${getRoleName(7)} + ${getRoleName(8)}`,
-        weight_percent: 25,
-        avg_score: combinedSubordinates,
+        label: `${getRoleName(6)}`,
+        weight_percent: 15,
+        avg_score: avg6False,
         weighted_score: weightC,
       },
       groupD: {
-        label: getRoleName(5),
+        label: `${getRoleName(4)} + ${getRoleName(5)}`,
         weight_percent: 30,
-        avg_score: avg5,
+        avg_score: combinedSuperiors,
         weighted_score: weightD,
       },
       groupE: {
-        label: getRoleName(9),
+        label: getRoleName(10),
         weight_percent: 15,
-        avg_score: avg9,
+        avg_score: avg10,
         weighted_score: weightE,
       },
       final_weighted_total: finalTotal,
     };
   } else if (receiverRoleId === 5) {
     // ----------------------------------------------------
-    // ROLE ID 5 (ຫົວໜ້າພະແນກ)
+    // ROLE ID 5 (ຮອງຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ)
     // ----------------------------------------------------
-    let combinedSubordinates = 0;
-    if (branchId === 2) {
-      const avg6 = getAvg((i) => i.roleId === 6);
-      const avg7 = getAvg((i) => i.roleId === 7);
-      const avg8 = getAvg((i) => i.roleId === 8);
-      combinedSubordinates = getCombined([avg6, avg7, avg8]);
-    } else {
-      const avg7 = getAvg((i) => i.roleId === 7);
-      const avg8 = getAvg((i) => i.roleId === 8);
-      combinedSubordinates = getCombined([avg7, avg8]);
-    }
-    const weightA = Number(((combinedSubordinates * 25) / 100).toFixed(2));
+    const avg2 = getAvg((i) => i.roleId === 2);
+    const avg3 = getAvg((i) => i.roleId === 3);
+    const combinedSuperiors = getCombined([avg2, avg3]);
+    const weightA = Number(((combinedSuperiors * 20) / 100).toFixed(2));
+
+    const avg4True = getAvg((i) => i.roleId === 4 && i.together === true) || 0;
+    const weightB = Number(((avg4True * 25) / 100).toFixed(2));
 
     const avg5True = getAvg((i) => i.roleId === 5 && i.together === true) || 0;
-    const weightB = Number(((avg5True * 15) / 100).toFixed(2));
+    const weightC = Number(((avg5True * 15) / 100).toFixed(2));
 
-    const avg5False =
-      getAvg((i) => i.roleId === 5 && i.together === false) || 0;
-    const weightC = Number(((avg5False * 15) / 100).toFixed(2));
+    const avg6 = getAvg((i) => i.roleId === 6);
+    const avg8 = getAvg((i) => i.roleId === 8);
+    const combinedSubordinates = getCombined([avg6, avg8]);
+    const weightD = Number(((combinedSubordinates * 25) / 100).toFixed(2));
 
-    const avg4 = getAvg((i) => i.roleId === 4) || 0;
-    const weightD = Number(((avg4 * 30) / 100).toFixed(2));
-
-    const avg9 = getAvg((i) => i.roleId === 9) || 0;
-    const weightE = Number(((avg9 * 15) / 100).toFixed(2));
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightE = Number(((avg10 * 15) / 100).toFixed(2));
 
     finalTotal = Number(
       (weightA + weightB + weightC + weightD + weightE).toFixed(2),
@@ -227,61 +296,66 @@ function computeReceiverScore(
       receiver_roleId: 5,
       branch_id: branchId,
       groupA: {
-        label:
-          branchId === 2
-            ? `${getRoleName(6)} + ${getRoleName(7)} + ${getRoleName(8)}`
-            : `${getRoleName(7)} + ${getRoleName(8)}`,
-        weight_percent: 25,
-        avg_score: combinedSubordinates,
+        label: `${getRoleName(2)} + ${getRoleName(3)}`,
+        weight_percent: 20,
+        avg_score: combinedSuperiors,
         weighted_score: weightA,
       },
       groupB: {
-        label: `${getRoleName(5)} (ພາຍໃນພະແນກ/ສູນ/ສາຂາ)`,
-        weight_percent: 15,
-        avg_score: avg5True,
+        label: `${getRoleName(4)} (ພາຍໃນ)`,
+        weight_percent: 25,
+        avg_score: avg4True,
         weighted_score: weightB,
       },
       groupC: {
-        label: `${getRoleName(5)}`,
+        label: `${getRoleName(5)} (ພາຍໃນ)`,
         weight_percent: 15,
-        avg_score: avg5False,
+        avg_score: avg5True,
         weighted_score: weightC,
       },
       groupD: {
-        label: getRoleName(4),
-        weight_percent: 30,
-        avg_score: avg4,
+        label: `${getRoleName(6)} + ${getRoleName(8)}`,
+        weight_percent: 25,
+        avg_score: combinedSubordinates,
         weighted_score: weightD,
       },
       groupE: {
-        label: getRoleName(9),
+        label: getRoleName(10),
         weight_percent: 15,
-        avg_score: avg9,
+        avg_score: avg10,
         weighted_score: weightE,
       },
       final_weighted_total: finalTotal,
     };
   } else if (receiverRoleId === 4) {
     // ----------------------------------------------------
-    // ROLE ID 4 (ຫົວໜ້າຝ່າຍ)
+    // ROLE ID 4 (ຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ)
     // ----------------------------------------------------
-    const avg4True = getAvg((i) => i.roleId === 4 && i.together === true) || 0;
-    const weightA = Number(((avg4True * 15) / 100).toFixed(2));
+    const avg2 = getAvg((i) => i.roleId === 2);
+    const avg3 = getAvg((i) => i.roleId === 3);
+    let avgGroupA = 0;
+    if (avg2 !== null && avg3 !== null) {
+      avgGroupA = Number((avg2 * 0.7 + avg3 * 0.3).toFixed(2));
+    } else if (avg2 !== null) {
+      avgGroupA = avg2;
+    } else if (avg3 !== null) {
+      avgGroupA = avg3;
+    }
+    const weightA = Number(((avgGroupA * 30) / 100).toFixed(2));
 
-    const avg4False =
-      getAvg((i) => i.roleId === 4 && i.together === false) || 0;
-    const weightB = Number(((avg4False * 15) / 100).toFixed(2));
+    const avg5True = getAvg((i) => i.roleId === 5 && i.together === true) || 0;
+    const weightB = Number(((avg5True * 15) / 100).toFixed(2));
 
-    const avg5 = getAvg((i) => i.roleId === 5);
-    const avg7 = getAvg((i) => i.roleId === 7);
-    const combinedSubordinates = getCombined([avg5, avg7]);
-    const weightC = Number(((combinedSubordinates * 25) / 100).toFixed(2));
+    const avg4 = getAvg((i) => i.roleId === 4) || 0;
+    const weightC = Number(((avg4 * 15) / 100).toFixed(2));
 
-    const avg3 = getAvg((i) => i.roleId === 3) || 0;
-    const weightD = Number(((avg3 * 30) / 100).toFixed(2));
+    const avg6 = getAvg((i) => i.roleId === 6);
+    const avg8 = getAvg((i) => i.roleId === 8);
+    const combinedSubordinates = getCombined([avg6, avg8]);
+    const weightD = Number(((combinedSubordinates * 25) / 100).toFixed(2));
 
-    const avg9 = getAvg((i) => i.roleId === 9) || 0;
-    const weightE = Number(((avg9 * 15) / 100).toFixed(2));
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightE = Number(((avg10 * 15) / 100).toFixed(2));
 
     finalTotal = Number(
       (weightA + weightB + weightC + weightD + weightE).toFixed(2),
@@ -291,40 +365,40 @@ function computeReceiverScore(
       receiver_roleId: 4,
       branch_id: branchId,
       groupA: {
-        label: `${getRoleName(4)} (ພາຍໃນຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ)`,
-        weight_percent: 15,
-        avg_score: avg4True,
+        label: `${getRoleName(2)} + ${getRoleName(3)}`,
+        weight_percent: 30,
+        avg_score: avgGroupA,
         weighted_score: weightA,
       },
       groupB: {
-        label: `${getRoleName(4)}`,
+        label: `${getRoleName(5)} (ພາຍໃນ)`,
         weight_percent: 15,
-        avg_score: avg4False,
+        avg_score: avg5True,
         weighted_score: weightB,
       },
       groupC: {
-        label: `${getRoleName(5)} + ${getRoleName(7)}`,
-        weight_percent: 25,
-        avg_score: combinedSubordinates,
+        label: getRoleName(4),
+        weight_percent: 15,
+        avg_score: avg4,
         weighted_score: weightC,
       },
       groupD: {
-        label: getRoleName(3),
-        weight_percent: 30,
-        avg_score: avg3,
+        label: `${getRoleName(6)} + ${getRoleName(8)}`,
+        weight_percent: 25,
+        avg_score: combinedSubordinates,
         weighted_score: weightD,
       },
       groupE: {
-        label: getRoleName(9),
+        label: getRoleName(10),
         weight_percent: 15,
-        avg_score: avg9,
+        avg_score: avg10,
         weighted_score: weightE,
       },
       final_weighted_total: finalTotal,
     };
   } else if (receiverRoleId === 3) {
     // ----------------------------------------------------
-    // ROLE ID 3 (ຜູ້ບໍລິຫານ)
+    // ROLE ID 3 (ຮອງຜູ້ອຳນວຍການ)
     // ----------------------------------------------------
     const avg2 = getAvg((i) => i.roleId === 2) || 0;
     const weightA = Number(((avg2 * 30) / 100).toFixed(2));
@@ -332,40 +406,14 @@ function computeReceiverScore(
     const avg3 = getAvg((i) => i.roleId === 3) || 0;
     const weightB = Number(((avg3 * 15) / 100).toFixed(2));
 
-    // Department IDs under direction for each receiver
-    const directedDeptMap: Record<number, number[]> = {
-      3: [2],
-      4: [2],
-      5: [10, 11, 12],
-      6: [3, 21],
-      7: [8],
-      8: [6, 4, 22],
-    };
+    const avg4 = getAvg((i) => i.roleId === 4) || 0;
+    const weightC = Number(((avg4 * 15) / 100).toFixed(2));
 
-    const targetDepts = directedDeptMap[receiver.id] || [];
+    const avg5 = getAvg((i) => i.roleId === 5) || 0;
+    const weightD = Number(((avg5 * 25) / 100).toFixed(2));
 
-    // Role 4 ທີ່ຖືກຊີ້ນຳ (25%)
-    const avg4Directed =
-      getAvg(
-        (i) =>
-          i.roleId === 4 &&
-          i.giver?.departmentId &&
-          targetDepts.includes(i.giver.departmentId),
-      ) || 0;
-    const weightC = Number(((avg4Directed * 25) / 100).toFixed(2));
-
-    // Role 4 ທີ່ບໍ່ໄດ້ຖືກຊີ້ນຳ (15%)
-    const avg4Undirected =
-      getAvg(
-        (i) =>
-          i.roleId === 4 &&
-          (!i.giver?.departmentId ||
-            !targetDepts.includes(i.giver.departmentId)),
-      ) || 0;
-    const weightD = Number(((avg4Undirected * 15) / 100).toFixed(2));
-
-    const avg9 = getAvg((i) => i.roleId === 9) || 0;
-    const weightE = Number(((avg9 * 15) / 100).toFixed(2));
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightE = Number(((avg10 * 15) / 100).toFixed(2));
 
     finalTotal = Number(
       (weightA + weightB + weightC + weightD + weightE).toFixed(2),
@@ -387,21 +435,21 @@ function computeReceiverScore(
         weighted_score: weightB,
       },
       groupC: {
-        label: `${getRoleName(4)} (ຄະນະຝ່າຍຊີ້ນຳ)`,
-        weight_percent: 25,
-        avg_score: avg4Directed,
+        label: getRoleName(4),
+        weight_percent: 15,
+        avg_score: avg4,
         weighted_score: weightC,
       },
       groupD: {
-        label: `${getRoleName(4)}`,
-        weight_percent: 15,
-        avg_score: avg4Undirected,
+        label: getRoleName(5),
+        weight_percent: 25,
+        avg_score: avg5,
         weighted_score: weightD,
       },
       groupE: {
-        label: getRoleName(9),
+        label: getRoleName(10),
         weight_percent: 15,
-        avg_score: avg9,
+        avg_score: avg10,
         weighted_score: weightE,
       },
       final_weighted_total: finalTotal,
@@ -424,6 +472,7 @@ export async function resultAll(
   page?: number,
   limit?: number,
   search?: string,
+  roleId?: number,
 ) {
   const whereUser: Prisma.UserWhereInput = {
     receivers: {
@@ -436,6 +485,9 @@ export async function resultAll(
   }
   if (divisionId && !isNaN(Number(divisionId))) {
     whereUser.divisionId = Number(divisionId);
+  }
+  if (roleId && !isNaN(Number(roleId))) {
+    whereUser.roleId = Number(roleId);
   }
   if (search && typeof search === 'string' && search.trim()) {
     const q = search.trim();
@@ -536,6 +588,12 @@ export async function resultAll(
             giver: {
               select: {
                 departmentId: true,
+                division: {
+                  select: {
+                    id: true,
+                    branch_id: true,
+                  },
+                },
               },
             },
             role: {

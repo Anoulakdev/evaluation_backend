@@ -10,98 +10,67 @@ export async function getUser(
   let where: Prisma.UserWhereInput | undefined;
   const targetRoleId = Number(roleId);
 
-  if (user.roleId === 8 && user.division?.branch_id === 1) {
-    if (targetRoleId === 5) {
+  if (user.roleId === 9 && user.division?.branch_id === 1) {
+    if (targetRoleId === 6) {
       where = {
         roleId: targetRoleId,
         status: 'A',
         divisionId: user.divisionId,
       };
-    } else if (targetRoleId === 7) {
+    } else if (targetRoleId === 8) {
       where = {
         roleId: targetRoleId,
         status: 'A',
         unitId: user.unitId,
+      };
+    }
+  } else if (user.roleId === 9 && user.division?.branch_id === 2) {
+    if (targetRoleId === 7) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        officeId: user.officeId,
+      };
+    } else if (targetRoleId === 8) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        unitId: user.unitId,
+      };
+    }
+  } else if (user.roleId === 8 && user.division?.branch_id === 1) {
+    if (targetRoleId === 4) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 5) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 6) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        divisionId: user.divisionId,
+      };
+    } else if (targetRoleId === 8) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        divisionId: user.divisionId,
+      };
+    } else if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
       };
     }
   } else if (user.roleId === 8 && user.division?.branch_id === 2) {
-    if (targetRoleId === 5) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
-    } else if (targetRoleId === 6) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        officeId: user.officeId,
-      };
-    } else if (targetRoleId === 7) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        unitId: user.unitId,
-      };
-    }
-  } else if (user.roleId === 7 && user.division?.branch_id === 1) {
-    if (targetRoleId === 4) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        departmentId: user.departmentId,
-      };
-    } else if (targetRoleId === 5) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
-    } else if (targetRoleId === 7) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
-    } else if (targetRoleId === 9) {
-      where = {
-        id: user.id,
-        status: 'A',
-      };
-    }
-  } else if (user.roleId === 7 && user.division?.branch_id === 2) {
-    if (targetRoleId === 5) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
-    } else if (targetRoleId === 6) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        officeId: user.officeId,
-      };
-    } else if (targetRoleId === 7) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        officeId: user.officeId,
-      };
-    } else if (targetRoleId === 9) {
-      where = {
-        id: user.id,
-        status: 'A',
-      };
-    }
-  } else if (user.roleId === 6) {
-    if (targetRoleId === 5) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
-    } else if (targetRoleId === 6) {
+    if (targetRoleId === 6) {
       where = {
         roleId: targetRoleId,
         status: 'A',
@@ -113,24 +82,24 @@ export async function getUser(
         status: 'A',
         officeId: user.officeId,
       };
-    } else if (targetRoleId === 9) {
+    } else if (targetRoleId === 8) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        officeId: user.officeId,
+      };
+    } else if (targetRoleId === 10) {
       where = {
         id: user.id,
         status: 'A',
       };
     }
-  } else if (user.roleId === 5 && user.division?.branch_id === 1) {
-    if (targetRoleId === 4) {
+  } else if (user.roleId === 7) {
+    if (targetRoleId === 6) {
       where = {
         roleId: targetRoleId,
         status: 'A',
-        departmentId: user.departmentId,
-      };
-    } else if (targetRoleId === 5) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        departmentId: user.departmentId,
+        divisionId: user.divisionId,
       };
     } else if (targetRoleId === 7) {
       where = {
@@ -138,13 +107,19 @@ export async function getUser(
         status: 'A',
         divisionId: user.divisionId,
       };
-    } else if (targetRoleId === 9) {
+    } else if (targetRoleId === 8) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        officeId: user.officeId,
+      };
+    } else if (targetRoleId === 10) {
       where = {
         id: user.id,
         status: 'A',
       };
     }
-  } else if (user.roleId === 5 && user.division?.branch_id === 2) {
+  } else if (user.roleId === 6 && user.division?.branch_id === 1) {
     if (targetRoleId === 4) {
       where = {
         roleId: targetRoleId,
@@ -161,9 +136,81 @@ export async function getUser(
       where = {
         roleId: targetRoleId,
         status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 8) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
         divisionId: user.divisionId,
       };
-    } else if (targetRoleId === 9) {
+    } else if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
+      };
+    }
+  } else if (user.roleId === 6 && user.division?.branch_id === 2) {
+    if (targetRoleId === 6) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        division: user.division,
+      };
+    } else if (targetRoleId === 7) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        divisionId: user.divisionId,
+      };
+    } else if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
+      };
+    }
+  } else if (user.roleId === 5) {
+    if (targetRoleId === 3) {
+      const deptToSupervisorMap: Record<number, number> = {
+        2: 3,
+        10: 4,
+        11: 4,
+        12: 4,
+        21: 5,
+        3: 5,
+        22: 5,
+        8: 6,
+        6: 7,
+        4: 7,
+      };
+      const targetUserId = user.departmentId
+        ? deptToSupervisorMap[user.departmentId]
+        : undefined;
+
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        id: targetUserId ? targetUserId : -1,
+      };
+    } else if (targetRoleId === 4) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 5) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 6) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 10) {
       where = {
         id: user.id,
         status: 'A',
@@ -186,13 +233,28 @@ export async function getUser(
         status: 'A',
         departmentId: user.departmentId,
       };
-    } else if (targetRoleId === 9) {
+    } else if (targetRoleId === 6) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 10) {
       where = {
         id: user.id,
         status: 'A',
       };
     }
   } else if (user.roleId === 3) {
+    const directedDeptMap: Record<number, number[]> = {
+      3: [2],
+      4: [10, 11, 12],
+      5: [21, 3, 22],
+      6: [8],
+      7: [6, 4],
+    };
+    const targetDepts = directedDeptMap[user.id] || [];
+
     if (targetRoleId === 3) {
       where = {
         roleId: targetRoleId,
@@ -202,8 +264,15 @@ export async function getUser(
       where = {
         roleId: targetRoleId,
         status: 'A',
+        departmentId: { in: targetDepts },
       };
-    } else if (targetRoleId === 9) {
+    } else if (targetRoleId === 5) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: { in: targetDepts },
+      };
+    } else if (targetRoleId === 10) {
       where = {
         id: user.id,
         status: 'A',
@@ -215,6 +284,18 @@ export async function getUser(
         roleId: targetRoleId,
         status: 'A',
       };
+    } else if (targetRoleId === 4) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: { in: [1, 9] },
+      };
+    } else if (targetRoleId === 5) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: { in: [1, 9] },
+      };
     }
   }
 
@@ -222,8 +303,14 @@ export async function getUser(
     return [];
   }
 
-  if (targetRoleId !== 9) {
-    where.id = { not: user.id };
+  if (targetRoleId !== 10) {
+    if (where.id && typeof where.id === 'object') {
+      where.id = { ...where.id, not: user.id };
+    } else if (typeof where.id === 'number') {
+      where.id = { equals: where.id, not: user.id };
+    } else {
+      where.id = { not: user.id };
+    }
   }
 
   const users = await prisma.user.findMany({

@@ -22,6 +22,7 @@ async function bootstrap() {
 
   const allowedOrigins = [
     'http://localhost:5200',
+    'http://127.0.0.1:5200',
     'http://192.168.20.163:5200',
     'https://api-test.edl.com.la',
     'https://evaluation360.edl.com.la',
