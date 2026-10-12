@@ -32,6 +32,8 @@ async function main() {
       { id: 8, name: 'ຄະນະໜ່ວຍງານ' },
       { id: 9, name: 'ວິຊາການ' },
       { id: 10, name: 'ຕົນເອງ' },
+      { id: 11, name: 'SuperAdmin' },
+      { id: 12, name: 'Boss' },
     ];
     for (const r of roles) {
       await prisma.role.upsert({
@@ -189,6 +191,8 @@ async function main() {
 
     // 3. Seed User
     const usersToSeed = [
+      { username: 'TTT', roleId: 11 },
+      { username: 'vankham', roleId: 12 },
       { username: 'admin', roleId: 1 },
       { username: '44276', roleId: 2 },
       { username: '44334', roleId: 3 },

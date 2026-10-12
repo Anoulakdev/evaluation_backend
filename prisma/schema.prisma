@@ -191,11 +191,12 @@ model Total {
   s4_score      Int      @default(0)
   total_score   Int      @default(0)
   percent_score Float    @default(0)
+  approve       Boolean  @default(false)
   createdAt     DateTime @default(now()) @db.Timestamptz(0)
   updatedAt     DateTime @updatedAt @db.Timestamptz(0)
 
+  @@unique([giverId, receiverId])
   @@index([giverId])
   @@index([receiverId])
-  @@unique([giverId, receiverId])
   @@index([receiverId, roleId])
 }

@@ -117,10 +117,13 @@ export class AuthService {
     };
 
     const expiresIn = '2h';
+    const defaultPassword = process.env.DEFAULT_PASSWORD || 'EDL1234';
+    const isDefaultPassword = password === defaultPassword;
 
     return {
       token: this.jwtService.sign(payload, { expiresIn }),
       user,
+      isDefaultPassword,
     };
   }
 }

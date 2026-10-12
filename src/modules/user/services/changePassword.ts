@@ -12,16 +12,11 @@ export async function changePassword(
   id: number,
   dto: ChangePasswordDto,
 ) {
-  const { oldpassword, password1, password2 } = dto;
+  const { password1, password2 } = dto;
 
   const user = await prisma.user.findUnique({ where: { id } });
 
   if (!user) throw new NotFoundException('User not found');
-
-  const isPasswordValid = await bcrypt.compare(oldpassword, user.password);
-  if (!isPasswordValid) {
-    throw new BadRequestException('Old password is incorrect');
-  }
 
   if (password1 !== password2) {
     throw new BadRequestException('Password not match');

@@ -13,8 +13,10 @@ import { CreateTotalDto } from './dto/create-total.dto';
 import { UpdateTotalDto } from './dto/update-total.dto';
 import type { UserRequest } from '../../interfaces/user-request.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('totals')
 export class TotalController {
   constructor(private readonly totalService: TotalService) {}
