@@ -21,11 +21,13 @@ export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
   @Post()
+  @Roles(1)
   create(@Body() createDepartmentDto: CreateDepartmentDto) {
     return this.departmentService.create(createDepartmentDto);
   }
 
   @Post('/sync')
+  @Roles(1)
   syncData() {
     return this.departmentService.syncData();
   }
@@ -54,6 +56,7 @@ export class DepartmentController {
   }
 
   @Put(':id')
+  @Roles(1)
   update(
     @Param('id') id: string,
     @Body() updateDepartmentDto: UpdateDepartmentDto,

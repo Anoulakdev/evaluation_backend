@@ -16,7 +16,13 @@ export async function findAllUnit(
   const where: any = {};
   const andFilters: any[] = [];
 
-  if (options.departmentId !== undefined && options.departmentId !== null) {
+  if (
+    options.departmentId !== undefined &&
+    options.departmentId !== null &&
+    options.departmentId !== ('' as unknown) &&
+    !isNaN(Number(options.departmentId)) &&
+    Number(options.departmentId) > 0
+  ) {
     andFilters.push({
       OR: [
         { division: { departmentId: Number(options.departmentId) } },
@@ -27,7 +33,13 @@ export async function findAllUnit(
     });
   }
 
-  if (options.divisionId !== undefined && options.divisionId !== null) {
+  if (
+    options.divisionId !== undefined &&
+    options.divisionId !== null &&
+    options.divisionId !== ('' as unknown) &&
+    !isNaN(Number(options.divisionId)) &&
+    Number(options.divisionId) > 0
+  ) {
     andFilters.push({
       OR: [
         { divisionId: Number(options.divisionId) },
@@ -36,7 +48,13 @@ export async function findAllUnit(
     });
   }
 
-  if (options.officeId !== undefined && options.officeId !== null) {
+  if (
+    options.officeId !== undefined &&
+    options.officeId !== null &&
+    options.officeId !== ('' as unknown) &&
+    !isNaN(Number(options.officeId)) &&
+    Number(options.officeId) > 0
+  ) {
     where.officeId = Number(options.officeId);
   }
 

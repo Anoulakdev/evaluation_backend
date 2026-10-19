@@ -55,16 +55,17 @@ export async function syncData(
     throw new Error('No offices data retrieved from external API');
   }
 
-  const existing = await prisma.office.findMany({
-    select: { id: true },
-  });
+  // Deduplicate offices by ID
+  const uniqueOffices = Array.from(
+    new Map(officesData.map((o) => [o.id, o])).values(),
+  );
+
+  const [existing, existingDivisions] = await Promise.all([
+    prisma.office.findMany({ select: { id: true } }),
+    prisma.division.findMany({ select: { id: true } }),
+  ]);
 
   const existingIds = new Set(existing.map((d) => d.id));
-
-  // ดึง ID ของ Division ที่มีอยู่เพื่อป้องกัน ForeignKeyConstraintViolation
-  const existingDivisions = await prisma.division.findMany({
-    select: { id: true },
-  });
   const divisionIds = new Set(existingDivisions.map((d) => d.id));
 
   let updated = 0;
@@ -72,8 +73,8 @@ export async function syncData(
 
   const batchSize = 50;
 
-  for (let i = 0; i < officesData.length; i += batchSize) {
-    const batch = officesData.slice(i, i + batchSize);
+  for (let i = 0; i < uniqueOffices.length; i += batchSize) {
+    const batch = uniqueOffices.slice(i, i + batchSize);
 
     for (const d of batch) {
       if (!existingIds.has(d.id)) created++;

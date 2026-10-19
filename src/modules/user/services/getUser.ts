@@ -23,6 +23,17 @@ export async function getUser(
         status: 'A',
         unitId: user.unitId,
       };
+    } else if (targetRoleId === 9) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        unitId: user.unitId,
+      };
+    } else if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
+      };
     }
   } else if (user.roleId === 9 && user.division?.branch_id === 2) {
     if (targetRoleId === 7) {
@@ -36,6 +47,17 @@ export async function getUser(
         roleId: targetRoleId,
         status: 'A',
         unitId: user.unitId,
+      };
+    } else if (targetRoleId === 9) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        unitId: user.unitId,
+      };
+    } else if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
       };
     }
   } else if (user.roleId === 8 && user.division?.branch_id === 1) {
@@ -108,11 +130,65 @@ export async function getUser(
         divisionId: user.divisionId,
       };
     } else if (targetRoleId === 8) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        officeId: user.officeId,
-      };
+      if (!user.officeId) {
+        where = undefined;
+      } else {
+        // 1 & 2. ดึงหน่วยงานและพนักงานภายใต้ห้องการนี้แบบขนาน (Parallel)
+        const [officeUnits, officeUsers] = await Promise.all([
+          prisma.unit.findMany({
+            where: {
+              officeId: user.officeId,
+              unit_status: 'A',
+            },
+            select: { id: true },
+          }),
+          prisma.user.findMany({
+            where: {
+              officeId: user.officeId,
+              roleId: { in: [8, 9] },
+              status: 'A',
+            },
+            select: { unitId: true, roleId: true },
+          }),
+        ]);
+        const officeUnitIds = officeUnits.map((u) => u.id);
+
+        // 3. หาหน่วยงานที่มีหัวหน้า (roleId === 8)
+        const unitIdsWithRole8 = new Set(
+          officeUsers
+            .filter((u) => u.roleId === 8 && u.unitId !== null)
+            .map((u) => u.unitId as number),
+        );
+
+        // รวม unitId ทั้งหมดที่เกี่ยวข้องใน office นี้
+        const allUnitIds = Array.from(
+          new Set([
+            ...officeUnitIds,
+            ...officeUsers
+              .map((u) => u.unitId)
+              .filter((id): id is number => id !== null),
+          ]),
+        );
+
+        // 4. หาหน่วยงานที่ไม่มีหัวหน้าหน่วยงาน (ไม่มี roleId 8)
+        const unitIdsWithoutRole8 = allUnitIds.filter(
+          (unitId) => !unitIdsWithRole8.has(unitId),
+        );
+
+        // 5. เงื่อนไข Where:
+        // - ดึง role 8 ของ office นี้ตามปกติ
+        // - ถ้ามีหน่วยงานที่ไม่มี role 8 ให้ดึง role 9 ในหน่วยงานนั้นๆ มาแทน
+        where = {
+          officeId: user.officeId,
+          status: 'A',
+          OR: [
+            { roleId: 8 },
+            ...(unitIdsWithoutRole8.length > 0
+              ? [{ roleId: 9, unitId: { in: unitIdsWithoutRole8 } }]
+              : []),
+          ],
+        };
+      }
     } else if (targetRoleId === 10) {
       where = {
         id: user.id,
@@ -139,11 +215,65 @@ export async function getUser(
         departmentId: user.departmentId,
       };
     } else if (targetRoleId === 8) {
-      where = {
-        roleId: targetRoleId,
-        status: 'A',
-        divisionId: user.divisionId,
-      };
+      if (!user.divisionId) {
+        where = undefined;
+      } else {
+        // 1 & 2. ดึงหน่วยงานและพนักงานภายใต้ฝ่ายนี้แบบขนาน (Parallel)
+        const [divisionUnits, divisionUsers] = await Promise.all([
+          prisma.unit.findMany({
+            where: {
+              divisionId: user.divisionId,
+              unit_status: 'A',
+            },
+            select: { id: true },
+          }),
+          prisma.user.findMany({
+            where: {
+              divisionId: user.divisionId,
+              roleId: { in: [8, 9] },
+              status: 'A',
+            },
+            select: { unitId: true, roleId: true },
+          }),
+        ]);
+        const divisionUnitIds = divisionUnits.map((u) => u.id);
+
+        // 3. หาหน่วยงานที่มีหัวหน้า (roleId === 8)
+        const unitIdsWithRole8 = new Set(
+          divisionUsers
+            .filter((u) => u.roleId === 8 && u.unitId !== null)
+            .map((u) => u.unitId as number),
+        );
+
+        // รวม unitId ทั้งหมดที่เกี่ยวข้องใน division นี้
+        const allUnitIds = Array.from(
+          new Set([
+            ...divisionUnitIds,
+            ...divisionUsers
+              .map((u) => u.unitId)
+              .filter((id): id is number => id !== null),
+          ]),
+        );
+
+        // 4. หาหน่วยงานที่ไม่มีหัวหน้าหน่วยงาน (ไม่มี roleId 8)
+        const unitIdsWithoutRole8 = allUnitIds.filter(
+          (unitId) => !unitIdsWithRole8.has(unitId),
+        );
+
+        // 5. เงื่อนไข Where:
+        // - ดึง role 8 ของ division นี้ตามปกติ
+        // - ถ้ามีหน่วยงานที่ไม่มี role 8 ให้ดึง role 9 ในหน่วยงานนั้นๆ มาแทน
+        where = {
+          divisionId: user.divisionId,
+          status: 'A',
+          OR: [
+            { roleId: 8 },
+            ...(unitIdsWithoutRole8.length > 0
+              ? [{ roleId: 9, unitId: { in: unitIdsWithoutRole8 } }]
+              : []),
+          ],
+        };
+      }
     } else if (targetRoleId === 10) {
       where = {
         id: user.id,
@@ -279,7 +409,13 @@ export async function getUser(
       };
     }
   } else if (user.roleId === 2) {
-    if (targetRoleId === 3) {
+    const directorDeptMap: Record<number, number[]> = {
+      2: [1, 9],
+      8: [25, 5],
+    };
+    const targetDepts = directorDeptMap[user.id] || [];
+
+    if (targetRoleId === 3 && Number(user.id) !== 8) {
       where = {
         roleId: targetRoleId,
         status: 'A',
@@ -288,13 +424,13 @@ export async function getUser(
       where = {
         roleId: targetRoleId,
         status: 'A',
-        departmentId: { in: [1, 9] },
+        departmentId: { in: targetDepts },
       };
     } else if (targetRoleId === 5) {
       where = {
         roleId: targetRoleId,
         status: 'A',
-        departmentId: { in: [1, 9] },
+        departmentId: { in: targetDepts },
       };
     }
   }

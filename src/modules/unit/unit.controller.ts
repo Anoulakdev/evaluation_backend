@@ -21,11 +21,13 @@ export class UnitController {
   constructor(private readonly unitService: UnitService) {}
 
   @Post()
+  @Roles(1)
   create(@Body() createUnitDto: CreateUnitDto) {
     return this.unitService.create(createUnitDto);
   }
 
   @Post('/sync')
+  @Roles(1)
   syncData() {
     return this.unitService.syncData();
   }
@@ -63,6 +65,7 @@ export class UnitController {
   }
 
   @Put(':id')
+  @Roles(1)
   update(@Param('id') id: string, @Body() updateUnitDto: UpdateUnitDto) {
     return this.unitService.update(+id, updateUnitDto);
   }

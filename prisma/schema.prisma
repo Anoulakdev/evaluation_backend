@@ -199,4 +199,5 @@ model Total {
   @@index([giverId])
   @@index([receiverId])
   @@index([receiverId, roleId])
+  @@index([receiverId, approve])
 }

@@ -53,18 +53,26 @@ export async function createPosition(
     throw new Error('No positions data retrieved from external API');
   }
 
+  // Deduplicate positions by ID
+  const uniquePositions = Array.from(
+    new Map(positionsData.map((p) => [p.id, p])).values(),
+  );
+
   let updated = 0;
   let created = 0;
 
-  const existing = await prisma.position.findMany({
-    select: { id: true },
-  });
+  const [existing, existingPosCodes] = await Promise.all([
+    prisma.position.findMany({ select: { id: true } }),
+    prisma.positionCode.findMany({ select: { id: true } }),
+  ]);
+
   const existingIds = new Set(existing.map((e) => e.id));
+  const validPosCodeIds = new Set(existingPosCodes.map((p) => p.id));
 
   const batchSize = 50;
 
-  for (let i = 0; i < positionsData.length; i += batchSize) {
-    const batch = positionsData.slice(i, i + batchSize);
+  for (let i = 0; i < uniquePositions.length; i += batchSize) {
+    const batch = uniquePositions.slice(i, i + batchSize);
 
     for (const d of batch) {
       if (!existingIds.has(d.id)) created++;
@@ -72,22 +80,27 @@ export async function createPosition(
     }
 
     await prisma.$transaction(async (tx) => {
-      for (const d of batch) {
-        await tx.position.upsert({
-          where: { id: d.id },
-          update: {
-            pos_name: d.pos_name,
-            pos_status: d.pos_status,
-            poscodeId: d.poscodeId,
-          },
-          create: {
-            id: d.id,
-            pos_name: d.pos_name,
-            pos_status: d.pos_status,
-            poscodeId: d.poscodeId,
-          },
-        });
-      }
+      await Promise.all(
+        batch.map((d) => {
+          const poscodeId =
+            d.poscodeId && validPosCodeIds.has(d.poscodeId) ? d.poscodeId : null;
+
+          return tx.position.upsert({
+            where: { id: d.id },
+            update: {
+              pos_name: d.pos_name,
+              pos_status: d.pos_status,
+              poscodeId,
+            },
+            create: {
+              id: d.id,
+              pos_name: d.pos_name,
+              pos_status: d.pos_status,
+              poscodeId,
+            },
+          });
+        }),
+      );
     });
   }
 

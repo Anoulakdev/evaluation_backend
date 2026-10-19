@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Put,
   UseGuards,
   Req,
   Query,
@@ -35,11 +36,13 @@ export class TotalController {
   }
 
   @Get('/resultdetail')
+  @Roles(1, 12)
   resultDetail(@Query('emp_code') emp_code: string) {
     return this.totalService.resultDetail(emp_code);
   }
 
   @Get('/resultall')
+  @Roles(1, 12)
   resultAll(
     @Query('departmentId') departmentId?: number,
     @Query('divisionId') divisionId?: number,
@@ -56,5 +59,24 @@ export class TotalController {
       search,
       roleId,
     );
+  }
+
+  @Get('/resultlist')
+  resultList(@Req() req: UserRequest) {
+    return this.totalService.resultList(req.user);
+  }
+
+  @Put('/updatelist')
+  updateList(@Req() req: UserRequest, @Body() ids: number[]) {
+    return this.totalService.updateList(req.user, ids);
+  }
+
+  @Put(':id')
+  update(
+    @Req() req: UserRequest,
+    @Param('id') id: string,
+    @Body() updateTotalDto: UpdateTotalDto,
+  ) {
+    return this.totalService.update(req.user, +id, updateTotalDto);
   }
 }

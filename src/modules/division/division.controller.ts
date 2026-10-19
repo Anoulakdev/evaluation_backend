@@ -6,11 +6,13 @@ import {
   Body,
   Param,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { DivisionService } from './division.service';
 import { CreateDivisionDto } from './dto/create-division.dto';
 import { UpdateDivisionDto } from './dto/update-division.dto';
+import type { UserRequest } from '../../interfaces/user-request.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -21,11 +23,13 @@ export class DivisionController {
   constructor(private readonly divisionService: DivisionService) {}
 
   @Post()
+  @Roles(1)
   create(@Body() createDivisionDto: CreateDivisionDto) {
     return this.divisionService.create(createDivisionDto);
   }
 
   @Post('/sync')
+  @Roles(1)
   syncData() {
     return this.divisionService.syncData();
   }
@@ -46,8 +50,11 @@ export class DivisionController {
   }
 
   @Get('/selectdivision')
-  selectDivision(@Query('departmentId') departmentId?: number) {
-    return this.divisionService.selectDivision(departmentId);
+  selectDivision(
+    @Req() req: UserRequest,
+    @Query('departmentId') departmentId?: number,
+  ) {
+    return this.divisionService.selectDivision(req.user, departmentId);
   }
 
   @Get(':id')
@@ -56,6 +63,7 @@ export class DivisionController {
   }
 
   @Put(':id')
+  @Roles(1)
   update(
     @Param('id') id: string,
     @Body() updateDivisionDto: UpdateDivisionDto,

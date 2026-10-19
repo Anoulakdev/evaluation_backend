@@ -61,21 +61,19 @@ export async function syncData(
     throw new Error('No units data retrieved from external API');
   }
 
-  const existing = await prisma.unit.findMany({
-    select: { id: true },
-  });
+  // Deduplicate units by ID
+  const uniqueUnits = Array.from(
+    new Map(unitsData.map((u) => [u.id, u])).values(),
+  );
+
+  const [existing, existingDivisions, existingOffices] = await Promise.all([
+    prisma.unit.findMany({ select: { id: true } }),
+    prisma.division.findMany({ select: { id: true } }),
+    prisma.office.findMany({ select: { id: true } }),
+  ]);
 
   const existingIds = new Set(existing.map((d) => d.id));
-
-  // ดึง ID ของ Division และ Office ที่มีอยู่เพื่อป้องกัน ForeignKeyConstraintViolation
-  const existingDivisions = await prisma.division.findMany({
-    select: { id: true },
-  });
   const divisionIds = new Set(existingDivisions.map((d) => d.id));
-
-  const existingOffices = await prisma.office.findMany({
-    select: { id: true },
-  });
   const officeIds = new Set(existingOffices.map((o) => o.id));
 
   let updated = 0;
@@ -83,8 +81,8 @@ export async function syncData(
 
   const batchSize = 50;
 
-  for (let i = 0; i < unitsData.length; i += batchSize) {
-    const batch = unitsData.slice(i, i + batchSize);
+  for (let i = 0; i < uniqueUnits.length; i += batchSize) {
+    const batch = uniqueUnits.slice(i, i + batchSize);
 
     for (const d of batch) {
       if (!existingIds.has(d.id)) created++;

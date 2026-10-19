@@ -56,6 +56,11 @@ export async function syncData(
     throw new Error('No departments data retrieved from external API');
   }
 
+  // Deduplicate departments by ID
+  const uniqueDepartments = Array.from(
+    new Map(departmentsData.map((d) => [d.id, d])).values(),
+  );
+
   const existing = await prisma.department.findMany({
     select: { id: true },
   });
@@ -67,8 +72,8 @@ export async function syncData(
 
   const batchSize = 50;
 
-  for (let i = 0; i < departmentsData.length; i += batchSize) {
-    const batch = departmentsData.slice(i, i + batchSize);
+  for (let i = 0; i < uniqueDepartments.length; i += batchSize) {
+    const batch = uniqueDepartments.slice(i, i + batchSize);
 
     for (const d of batch) {
       if (!existingIds.has(d.id)) created++;

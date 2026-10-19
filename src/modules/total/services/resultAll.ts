@@ -66,29 +66,69 @@ function computeReceiverScore(
 
   let weightedCalculation: any = null;
   let finalTotal: number = 0;
+  if (receiverRoleId === 9) {
+    // ----------------------------------------------------
+    // ROLE ID 9 (ວິຊາການ)
+    // ----------------------------------------------------
+    const rawAvg8 = getAvg((i) => i.roleId === 8);
+    let avgSupervisor: number = 0;
+    let supervisorRoleId: number = 8;
 
-  if (receiverRoleId === 8) {
+    if (rawAvg8 !== null) {
+      avgSupervisor = rawAvg8;
+      supervisorRoleId = 8;
+    } else {
+      const fallbackRoleId = branchId === 2 ? 7 : 6;
+      const rawFallback = getAvg((i) => i.roleId === fallbackRoleId);
+      avgSupervisor = rawFallback !== null ? rawFallback : 0;
+      supervisorRoleId = fallbackRoleId;
+    }
+
+    const weightA = Number(((avgSupervisor * 50) / 100).toFixed(2));
+
+    const avg9True =
+      getAvg((i) => i.roleId === 9 && i.together === true) || 0;
+    const weightB = Number(((avg9True * 25) / 100).toFixed(2));
+
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightC = Number(((avg10 * 25) / 100).toFixed(2));
+
+    finalTotal = Number((weightA + weightB + weightC).toFixed(2));
+
+    weightedCalculation = {
+      receiver_roleId: 9,
+      branch_id: branchId,
+      groupA: {
+        label: getRoleName(supervisorRoleId),
+        weight_percent: 50,
+        avg_score: avgSupervisor,
+        weighted_score: weightA,
+      },
+      groupB: {
+        label: `${getRoleName(9)} (ພາຍໃນ)`,
+        weight_percent: 25,
+        avg_score: avg9True,
+        weighted_score: weightB,
+      },
+      groupC: {
+        label: getRoleName(10),
+        weight_percent: 25,
+        avg_score: avg10,
+        weighted_score: weightC,
+      },
+      final_weighted_total: finalTotal,
+    };
+  } else if (receiverRoleId === 8) {
     // ----------------------------------------------------
     // ROLE ID 8 (ຄະນະໜ່ວຍງານ)
     // ----------------------------------------------------
     const avg8True = getAvg((i) => i.roleId === 8 && i.together === true);
     const avg9 = getAvg((i) => i.roleId === 9);
-    const validGroupAScores = [avg8True, avg9].filter(
-      (s): s is number => s !== null,
-    );
-    const avgGroupA =
-      validGroupAScores.length > 0
-        ? Number(
-            (
-              validGroupAScores.reduce((acc, s) => acc + s, 0) /
-              validGroupAScores.length
-            ).toFixed(2),
-          )
-        : 95;
+    const avgGroupA = getCombined([avg8True, avg9]);
     const weightA = Number(((avgGroupA * 35) / 100).toFixed(2));
 
-    const rawAvg8False = getAvg((i) => i.roleId === 8 && i.together === false);
-    const avgGroupB = rawAvg8False !== null ? rawAvg8False : 95;
+    const avgGroupB =
+      getAvg((i) => i.roleId === 8 && i.together === false) || 0;
     const weightB = Number(((avgGroupB * 20) / 100).toFixed(2));
 
     const targetMiddleRoleId = branchId === 2 ? 7 : 6;
@@ -476,7 +516,9 @@ export async function resultAll(
 ) {
   const whereUser: Prisma.UserWhereInput = {
     receivers: {
-      some: {},
+      some: {
+        approve: true,
+      },
     },
   };
 
@@ -579,6 +621,7 @@ export async function resultAll(
       ? await prisma.total.findMany({
           where: {
             receiverId: { in: userIds },
+            approve: true,
           },
           select: {
             receiverId: true,

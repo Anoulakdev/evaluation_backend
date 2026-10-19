@@ -129,6 +129,24 @@ export async function createUser(
       ]);
     }
 
+    if (createUserDto.departmentId) {
+      const explicitDept = await tx.department.findUnique({
+        where: { id: Number(createUserDto.departmentId) },
+      });
+      if (explicitDept) {
+        dept = explicitDept;
+      }
+    }
+
+    if (createUserDto.divisionId) {
+      const explicitDiv = await tx.division.findUnique({
+        where: { id: Number(createUserDto.divisionId) },
+      });
+      if (explicitDiv) {
+        div = explicitDiv;
+      }
+    }
+
     const apiImgUrl = matchedEmployee?.image
       ? `${process.env.URL_API}/organization-svc/employee/getEmpImg/${matchedEmployee.emp_code}/${matchedEmployee.image}`
       : null;

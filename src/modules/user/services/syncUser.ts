@@ -49,7 +49,7 @@ const ROLE_5_POS_IDS = new Set([126, 144, 9, 11, 10]);
 const ROLE_6_POS_IDS = new Set([
   103, 17, 114, 18, 13, 16, 14, 19, 129, 134, 20, 141, 132, 22, 106, 15, 29,
   128, 131, 112, 127, 26, 21, 25, 24, 119, 121, 99, 27, 28, 90, 39, 47, 100,
-  120, 145,
+  120, 145, 41,
 ]);
 const ROLE_7_POS_IDS = new Set([107, 30, 116, 40, 133]);
 const ROLE_8_POS_IDS = new Set([
@@ -142,7 +142,26 @@ export async function syncUser(prisma: PrismaService, departmentId: number) {
     };
   }
 
-  const empCodes = apiEmployees.map((e) => e.emp_code).filter(Boolean);
+  // Deduplicate by emp_code to prevent concurrent upsert unique collision in same transaction
+  const uniqueEmployees = Array.from(
+    new Map(
+      apiEmployees
+        .filter((e) => Boolean(e.emp_code && e.emp_code.trim()))
+        .map((e) => [e.emp_code.trim(), e]),
+    ).values(),
+  );
+
+  if (!uniqueEmployees.length) {
+    return {
+      success: true,
+      total: 0,
+      updated: 0,
+      created: 0,
+      message: 'No valid employees retrieved for this department',
+    };
+  }
+
+  const empCodes = uniqueEmployees.map((e) => e.emp_code);
 
   // Master Data Foreign Key validation & scoped user query
   const [
@@ -175,9 +194,10 @@ export async function syncUser(prisma: PrismaService, departmentId: number) {
   let created = 0;
 
   const batchSize = 50;
+  const baseUrl = (process.env.URL_API || '').replace(/\/+$/, '');
 
-  for (let i = 0; i < apiEmployees.length; i += batchSize) {
-    const batch = apiEmployees.slice(i, i + batchSize);
+  for (let i = 0; i < uniqueEmployees.length; i += batchSize) {
+    const batch = uniqueEmployees.slice(i, i + batchSize);
 
     // Track counts
     for (const emp of batch) {
@@ -193,7 +213,7 @@ export async function syncUser(prisma: PrismaService, departmentId: number) {
           if (!emp.emp_code) return Promise.resolve();
 
           const apiImgUrl = emp.image
-            ? `${process.env.URL_API}/organization-svc/employee/getEmpImg/${emp.emp_code}/${emp.image}`
+            ? `${baseUrl}/organization-svc/employee/getEmpImg/${emp.emp_code}/${emp.image}`
             : null;
 
           const rawPosId = emp.office?.pos_id;

@@ -2,6 +2,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { AuthUser } from '../../../interfaces/auth-user.interface';
 import { CreateTotalDto } from '../dto/create-total.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { getSubtitleCount } from './subtitleHelper';
 
 export async function createTotal(
   prisma: PrismaService,
@@ -9,30 +10,41 @@ export async function createTotal(
   createTotalDto: CreateTotalDto,
 ) {
   const receiverId = Number(createTotalDto.receiverId);
+  if (!receiverId || isNaN(receiverId)) {
+    throw new BadRequestException('Receiver ID is invalid');
+  }
 
-  const receiver = await prisma.user.findUnique({
-    where: {
-      id: receiverId,
-    },
-    select: {
-      id: true,
-      roleId: true,
-      departmentId: true,
-      divisionId: true,
-      officeId: true,
-      unitId: true,
-    },
-  });
+  const [receiver, existingTotal] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        id: receiverId,
+      },
+      select: {
+        id: true,
+        roleId: true,
+        departmentId: true,
+        divisionId: true,
+        officeId: true,
+        unitId: true,
+      },
+    }),
+    prisma.total.findUnique({
+      where: {
+        giverId_receiverId: {
+          giverId: user.id,
+          receiverId: receiverId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    }),
+  ]);
+
   if (!receiver) {
     throw new NotFoundException('Receiver not found');
   }
 
-  const existingTotal = await prisma.total.findFirst({
-    where: {
-      giverId: user.id,
-      receiverId: receiverId,
-    },
-  });
   if (existingTotal) {
     throw new BadRequestException('ທ່ານໄດ້ປະເມີນພະນັກງານຄົນນີ້ແລ້ວ');
   }
@@ -43,7 +55,15 @@ export async function createTotal(
   let together = false;
 
   if (!isSelf) {
-    if (receiver.roleId === 8) {
+    if (receiver.roleId === 9) {
+      if (
+        user.roleId === 9 &&
+        receiver.unitId != null &&
+        receiver.unitId === user.unitId
+      ) {
+        together = true;
+      }
+    } else if (receiver.roleId === 8) {
       if (
         user.roleId === 8 &&
         receiver.unitId != null &&
@@ -104,7 +124,7 @@ export async function createTotal(
   const s4_score = createTotalDto.s4_1 + createTotalDto.s4_2;
   const total_score = s1_score + s2_score + s3_score + s4_score;
 
-  const subtitleCount = await prisma.subTitle.count();
+  const subtitleCount = await getSubtitleCount(prisma);
   const maxPossibleScore = (subtitleCount || 16) * 10;
   const percent_score =
     maxPossibleScore > 0

@@ -22,8 +22,12 @@ interface LoginResponse {
 ================================ */
 
 let accessToken: string | null = null;
+let loginPromise: Promise<string> | null = null;
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
 
 /* ================================
    Axios Instance
@@ -64,16 +68,36 @@ async function login(): Promise<string> {
   return token;
 }
 
+async function getOrFetchToken(): Promise<string> {
+  if (accessToken) {
+    return accessToken;
+  }
+  if (!loginPromise) {
+    loginPromise = login().finally(() => {
+      loginPromise = null;
+    });
+  }
+  return loginPromise;
+}
+
 /* ================================
    Refresh Queue Helpers
 ================================ */
 
-function subscribeTokenRefresh(callback: (token: string) => void) {
-  refreshSubscribers.push(callback);
+function subscribeTokenRefresh(
+  resolve: (token: string) => void,
+  reject: (err: unknown) => void,
+) {
+  refreshSubscribers.push({ resolve, reject });
 }
 
 function onRefreshed(token: string) {
-  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers.forEach(({ resolve }) => resolve(token));
+  refreshSubscribers = [];
+}
+
+function onRefreshFailed(err: unknown) {
+  refreshSubscribers.forEach(({ reject }) => reject(err));
   refreshSubscribers = [];
 }
 
@@ -89,11 +113,8 @@ externalApi.interceptors.request.use(
     }
     config.baseURL = baseURL;
 
-    if (!accessToken) {
-      accessToken = await login();
-    }
-
-    config.headers.set('Authorization', `Bearer ${accessToken}`);
+    const token = await getOrFetchToken();
+    config.headers.set('Authorization', `Bearer ${token}`);
     return config;
   },
   (error) => Promise.reject(error),
@@ -114,18 +135,19 @@ externalApi.interceptors.response.use(
       originalRequest._retry = true;
 
       if (isRefreshing) {
-        // รอ token ใหม่
-        return new Promise((resolve) => {
+        // รอ token ໃຫມ່
+        return new Promise((resolve, reject) => {
           subscribeTokenRefresh((token: string) => {
             originalRequest.headers.set('Authorization', `Bearer ${token}`);
             resolve(externalApi(originalRequest));
-          });
+          }, reject);
         });
       }
 
       isRefreshing = true;
 
       try {
+        accessToken = null;
         const newToken = await login();
         accessToken = newToken;
 
@@ -135,6 +157,7 @@ externalApi.interceptors.response.use(
 
         return externalApi(originalRequest);
       } catch (err) {
+        onRefreshFailed(err);
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

@@ -34,6 +34,8 @@ async function main() {
       { id: 10, name: 'ຕົນເອງ' },
       { id: 11, name: 'SuperAdmin' },
       { id: 12, name: 'Boss' },
+      { id: 13, name: 'AdminDepartment' },
+      { id: 14, name: 'AdminBranch' },
     ];
     for (const r of roles) {
       await prisma.role.upsert({
@@ -191,8 +193,6 @@ async function main() {
 
     // 3. Seed User
     const usersToSeed = [
-      { username: 'TTT', roleId: 11 },
-      { username: 'vankham', roleId: 12 },
       { username: 'admin', roleId: 1 },
       { username: '44276', roleId: 2 },
       { username: '44334', roleId: 3 },
@@ -200,6 +200,9 @@ async function main() {
       { username: '27057', roleId: 3 },
       { username: '38811', roleId: 3 },
       { username: '35408', roleId: 3 },
+      { username: '44697', roleId: 2 },
+      { username: 'TTT', roleId: 11 },
+      { username: 'vankham', roleId: 12 },
     ];
 
     const results: any[] = [];

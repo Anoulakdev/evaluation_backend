@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateDivisionDto } from './dto/create-division.dto';
 import { UpdateDivisionDto } from './dto/update-division.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { AuthUser } from '../../interfaces/auth-user.interface';
 import { createDivision } from './services/create';
 import { updateDivision } from './services/update';
 import { findAllDivision, FindAllDivisionOptions } from './services/findall';
@@ -32,8 +33,8 @@ export class DivisionService {
     return findAllDivision(this.prisma, options);
   }
 
-  selectDivision(departmentId?: number) {
-    return selectDivision(this.prisma, departmentId);
+  selectDivision(user: AuthUser, departmentId?: number) {
+    return selectDivision(this.prisma, user, departmentId);
   }
 
   findOne(id: number) {

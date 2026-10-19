@@ -161,6 +161,7 @@ CREATE TABLE "Total" (
     "s4_score" INTEGER NOT NULL DEFAULT 0,
     "total_score" INTEGER NOT NULL DEFAULT 0,
     "percent_score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "approve" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ(0) NOT NULL,
 
@@ -229,6 +230,9 @@ CREATE INDEX "Total_receiverId_idx" ON "Total"("receiverId");
 
 -- CreateIndex
 CREATE INDEX "Total_receiverId_roleId_idx" ON "Total"("receiverId", "roleId");
+
+-- CreateIndex
+CREATE INDEX "Total_receiverId_approve_idx" ON "Total"("receiverId", "approve");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Total_giverId_receiverId_key" ON "Total"("giverId", "receiverId");

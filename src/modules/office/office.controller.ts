@@ -21,11 +21,13 @@ export class OfficeController {
   constructor(private readonly officeService: OfficeService) {}
 
   @Post()
+  @Roles(1)
   create(@Body() createOfficeDto: CreateOfficeDto) {
     return this.officeService.create(createOfficeDto);
   }
 
   @Post('/sync')
+  @Roles(1)
   syncData() {
     return this.officeService.syncData();
   }
@@ -56,6 +58,7 @@ export class OfficeController {
   }
 
   @Put(':id')
+  @Roles(1)
   update(@Param('id') id: string, @Body() updateOfficeDto: UpdateOfficeDto) {
     return this.officeService.update(+id, updateOfficeDto);
   }

@@ -32,8 +32,12 @@ export async function updateUser(
   if (updateUserDto.unitId !== undefined) {
     data.unitId = updateUserDto.unitId ? Number(updateUserDto.unitId) : null;
   }
-  if (updateUserDto.roleId !== undefined) {
-    data.roleId = updateUserDto.roleId ? Number(updateUserDto.roleId) : null;
+  if (
+    updateUserDto.roleId !== undefined &&
+    updateUserDto.roleId !== null &&
+    Number(updateUserDto.roleId) > 0
+  ) {
+    data.roleId = Number(updateUserDto.roleId);
   }
 
   const updatedUser = await prisma.user.update({

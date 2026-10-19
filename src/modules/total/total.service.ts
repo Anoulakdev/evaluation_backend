@@ -7,6 +7,9 @@ import { createTotal } from './services/create';
 import { checkEvaluation } from './services/checkEvaluation';
 import { resultDetail } from './services/resultDetail';
 import { resultAll } from './services/resultAll';
+import { resultList } from './services/resultList';
+import { updateList } from './services/updateList';
+import { updateTotal } from './services/update';
 
 @Injectable()
 export class TotalService {
@@ -41,5 +44,17 @@ export class TotalService {
       search,
       roleId,
     );
+  }
+
+  resultList(user: AuthUser) {
+    return resultList(this.prisma, user);
+  }
+
+  updateList(user: AuthUser, ids: number[] | { ids: number[] }) {
+    return updateList(this.prisma, user, ids);
+  }
+
+  update(user: AuthUser, id: number, updateTotalDto: UpdateTotalDto) {
+    return updateTotal(this.prisma, user, id, updateTotalDto);
   }
 }

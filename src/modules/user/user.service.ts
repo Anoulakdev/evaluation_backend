@@ -14,6 +14,7 @@ import { updateStatus } from './services/updateStatus';
 import { removeUser } from './services/remove';
 import { syncUser } from './services/syncUser';
 import { getUser } from './services/getUser';
+import { countAll } from './services/countAll';
 
 @Injectable()
 export class UserService {
@@ -35,6 +36,10 @@ export class UserService {
     return getUser(this.prisma, user, roleId);
   }
 
+  countAll(user: AuthUser) {
+    return countAll(this.prisma, user);
+  }
+
   findOne(id: number) {
     return findOneUser(this.prisma, id);
   }
@@ -47,8 +52,8 @@ export class UserService {
     return updateStatus(this.prisma, id, actived);
   }
 
-  changePassword(id: number, dto: ChangePasswordDto) {
-    return changePassword(this.prisma, id, dto);
+  changePassword(user: AuthUser, id: number, dto: ChangePasswordDto) {
+    return changePassword(this.prisma, user, id, dto);
   }
 
   resetPassword(id: number) {

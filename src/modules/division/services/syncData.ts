@@ -64,19 +64,31 @@ export async function syncData(
     throw new Error('No divisions data retrieved from external API');
   }
 
-  const existing = await prisma.division.findMany({
-    select: { id: true },
-  });
+  // Deduplicate divisions by ID
+  const uniqueDivisions = Array.from(
+    new Map(divisionsData.map((d) => [d.id, d])).values(),
+  );
 
-  const existingIds = new Set(existing.map((d) => d.id));
+  const [existingDivisions, existingDepts] = await Promise.all([
+    prisma.division.findMany({ select: { id: true } }),
+    prisma.department.findMany({ select: { id: true } }),
+  ]);
+
+  const existingIds = new Set(existingDivisions.map((d) => d.id));
+  const validDeptIds = new Set(existingDepts.map((d) => d.id));
+
+  // Filter divisions to only those with valid existing departmentId
+  const validDivisions = uniqueDivisions.filter((d) =>
+    validDeptIds.has(d.departmentId),
+  );
 
   let updated = 0;
   let created = 0;
 
   const batchSize = 50;
 
-  for (let i = 0; i < divisionsData.length; i += batchSize) {
-    const batch = divisionsData.slice(i, i + batchSize);
+  for (let i = 0; i < validDivisions.length; i += batchSize) {
+    const batch = validDivisions.slice(i, i + batchSize);
 
     for (const d of batch) {
       if (!existingIds.has(d.id)) created++;

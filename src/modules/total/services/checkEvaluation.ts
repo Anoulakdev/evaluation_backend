@@ -6,12 +6,19 @@ export async function checkEvaluation(
   user: AuthUser,
   receiverId: number,
 ) {
-  const count = await prisma.total.count({
+  if (!receiverId || isNaN(Number(receiverId))) {
+    return false;
+  }
+
+  const existing = await prisma.total.findUnique({
     where: {
-      giverId: user.id,
-      receiverId: Number(receiverId),
+      giverId_receiverId: {
+        giverId: user.id,
+        receiverId: Number(receiverId),
+      },
     },
+    select: { id: true },
   });
 
-  return count > 0;
+  return !!existing;
 }

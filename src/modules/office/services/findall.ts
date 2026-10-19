@@ -14,7 +14,13 @@ export async function findAllOffice(
   const where: any = {};
   const andFilters: any[] = [];
 
-  if (options.divisionId !== undefined && options.divisionId !== null) {
+  if (
+    options.divisionId !== undefined &&
+    options.divisionId !== null &&
+    options.divisionId !== ('' as unknown) &&
+    !isNaN(Number(options.divisionId)) &&
+    Number(options.divisionId) > 0
+  ) {
     where.divisionId = Number(options.divisionId);
   }
 

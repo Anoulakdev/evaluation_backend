@@ -14,7 +14,13 @@ export async function findAllDivision(
   const where: any = {};
   const andFilters: any[] = [];
 
-  if (options.departmentId !== undefined && options.departmentId !== null) {
+  if (
+    options.departmentId !== undefined &&
+    options.departmentId !== null &&
+    options.departmentId !== ('' as unknown) &&
+    !isNaN(Number(options.departmentId)) &&
+    Number(options.departmentId) > 0
+  ) {
     where.departmentId = Number(options.departmentId);
   }
 

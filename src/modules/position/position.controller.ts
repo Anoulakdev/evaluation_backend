@@ -12,6 +12,7 @@ export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
   @Post()
+  @Roles(1)
   create() {
     return this.positionService.create();
   }

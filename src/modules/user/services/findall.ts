@@ -23,7 +23,40 @@ export async function findAllUser(
   const where: Prisma.UserWhereInput = {};
   const andFilters: Prisma.UserWhereInput[] = [];
 
-  if (options.roleId !== undefined && options.roleId !== null) {
+  const currentUserRoleId =
+    user?.roleId !== undefined && user?.roleId !== null
+      ? Number(user.roleId)
+      : undefined;
+
+  let allowedRoles: number[] | null = null;
+  if (currentUserRoleId === 11) {
+    allowedRoles = [1, 12, 13, 14];
+  } else if (
+    currentUserRoleId === 1 ||
+    currentUserRoleId === 13 ||
+    currentUserRoleId === 14
+  ) {
+    allowedRoles = [2, 3, 4, 5, 6, 7, 8, 9];
+  }
+
+  const hasRoleIdOption =
+    options.roleId !== undefined &&
+    options.roleId !== null &&
+    options.roleId !== ('' as unknown) &&
+    !isNaN(Number(options.roleId));
+
+  if (allowedRoles) {
+    if (hasRoleIdOption) {
+      const selectedRoleId = Number(options.roleId);
+      if (allowedRoles.includes(selectedRoleId)) {
+        where.roleId = selectedRoleId;
+      } else {
+        where.roleId = { in: [] };
+      }
+    } else {
+      where.roleId = { in: allowedRoles };
+    }
+  } else if (hasRoleIdOption) {
     where.roleId = Number(options.roleId);
   }
 
@@ -34,23 +67,69 @@ export async function findAllUser(
     where.status = statusValue;
   }
 
-  if (options.departmentId !== undefined && options.departmentId !== null) {
+  if (currentUserRoleId === 13 && user?.departmentId) {
+    const userDeptId = Number(user.departmentId);
+    where.departmentId = userDeptId;
+    if ([10, 11, 12].includes(userDeptId)) {
+      where.division = {
+        branch_id: 1,
+      };
+    }
+  } else if (currentUserRoleId === 14) {
+    if (user?.departmentId) {
+      where.departmentId = Number(user.departmentId);
+    }
+    if (user?.divisionId) {
+      where.divisionId = Number(user.divisionId);
+    }
+  } else if (
+    options.departmentId !== undefined &&
+    options.departmentId !== null &&
+    options.departmentId !== ('' as unknown) &&
+    !isNaN(Number(options.departmentId)) &&
+    Number(options.departmentId) > 0
+  ) {
     where.departmentId = Number(options.departmentId);
   }
 
-  if (options.divisionId !== undefined && options.divisionId !== null) {
+  if (
+    currentUserRoleId !== 14 &&
+    options.divisionId !== undefined &&
+    options.divisionId !== null &&
+    options.divisionId !== ('' as unknown) &&
+    !isNaN(Number(options.divisionId)) &&
+    Number(options.divisionId) > 0
+  ) {
     where.divisionId = Number(options.divisionId);
   }
 
-  if (options.officeId !== undefined && options.officeId !== null) {
+  if (
+    options.officeId !== undefined &&
+    options.officeId !== null &&
+    options.officeId !== ('' as unknown) &&
+    !isNaN(Number(options.officeId)) &&
+    Number(options.officeId) > 0
+  ) {
     where.officeId = Number(options.officeId);
   }
 
-  if (options.unitId !== undefined && options.unitId !== null) {
+  if (
+    options.unitId !== undefined &&
+    options.unitId !== null &&
+    options.unitId !== ('' as unknown) &&
+    !isNaN(Number(options.unitId)) &&
+    Number(options.unitId) > 0
+  ) {
     where.unitId = Number(options.unitId);
   }
 
-  if (options.posId !== undefined && options.posId !== null) {
+  if (
+    options.posId !== undefined &&
+    options.posId !== null &&
+    options.posId !== ('' as unknown) &&
+    !isNaN(Number(options.posId)) &&
+    Number(options.posId) > 0
+  ) {
     where.posId = Number(options.posId);
   }
 
