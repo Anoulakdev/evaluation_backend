@@ -85,6 +85,12 @@ export async function getUser(
         status: 'A',
         divisionId: user.divisionId,
       };
+    } else if (targetRoleId === 9) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        unitId: user.unitId,
+      };
     } else if (targetRoleId === 10) {
       where = {
         id: user.id,
@@ -109,6 +115,12 @@ export async function getUser(
         roleId: targetRoleId,
         status: 'A',
         officeId: user.officeId,
+      };
+    } else if (targetRoleId === 9) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        unitId: user.unitId,
       };
     } else if (targetRoleId === 10) {
       where = {
