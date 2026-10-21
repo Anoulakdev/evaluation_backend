@@ -21,6 +21,7 @@ export async function findOneUser(prisma: PrismaService, id: number) {
       officeId: true,
       unitId: true,
       posId: true,
+      rank: true,
       department: true,
       division: true,
       office: true,

@@ -28,4 +28,8 @@ export class CreateUserDto {
   @IsInt()
   @IsOptional()
   posId?: number;
+
+  @IsInt()
+  @IsOptional()
+  rank?: number;
 }

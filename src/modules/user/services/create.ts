@@ -1,7 +1,6 @@
 import {
   ConflictException,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { externalApi } from '../../../utils/external-api';
@@ -169,6 +168,10 @@ export async function createUser(
         divisionId: div ? div.id : null,
         officeId: off ? off.id : null,
         unitId: unit ? unit.id : null,
+        rank:
+          createUserDto.rank !== undefined && createUserDto.rank !== null
+            ? Number(createUserDto.rank)
+            : null,
       },
       select: {
         id: true,

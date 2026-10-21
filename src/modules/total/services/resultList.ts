@@ -61,7 +61,25 @@ export async function resultList(prisma: PrismaService, user: AuthUser) {
         },
       },
     },
-    orderBy: [{ receiver: { roleId: 'asc' } }, { receiver: { posId: 'asc' } }],
+    orderBy: [
+      { receiver: { roleId: 'asc' } },
+      {
+        receiver: {
+          division: {
+            division_code: 'asc',
+          },
+        },
+      },
+      {
+        receiver: {
+          position: {
+            poscodeId: 'asc',
+          },
+        },
+      },
+      { receiver: { rank: 'asc' } },
+      { receiver: { emp_code: 'asc' } },
+    ],
   });
 
   return result;

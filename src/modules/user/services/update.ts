@@ -1,6 +1,7 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { NotFoundException } from '@nestjs/common';
+import { Prisma } from '../../../../generated/prisma/client';
 
 export async function updateUser(
   prisma: PrismaService,
@@ -10,9 +11,15 @@ export async function updateUser(
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) throw new NotFoundException('user not found');
 
-  const data: any = {};
+  const data: Prisma.UserUncheckedUpdateInput = {};
   if (updateUserDto.posId !== undefined) {
     data.posId = updateUserDto.posId ? Number(updateUserDto.posId) : null;
+  }
+  if (updateUserDto.rank !== undefined) {
+    data.rank =
+      updateUserDto.rank !== null && (updateUserDto.rank as any) !== ''
+        ? Number(updateUserDto.rank)
+        : null;
   }
   if (updateUserDto.departmentId !== undefined) {
     data.departmentId = updateUserDto.departmentId
@@ -50,6 +57,7 @@ export async function updateUser(
     data: {
       id: updatedUser.id,
       roleId: updatedUser.roleId,
+      rank: updatedUser.rank,
     },
   };
 }

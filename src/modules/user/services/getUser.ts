@@ -6,6 +6,7 @@ export async function getUser(
   prisma: PrismaService,
   user: AuthUser,
   roleId: number,
+  cachedEvaluatedSet?: Set<number>,
 ) {
   let where: Prisma.UserWhereInput | undefined;
   const targetRoleId = Number(roleId);
@@ -297,7 +298,7 @@ export async function getUser(
       where = {
         roleId: targetRoleId,
         status: 'A',
-        division: user.division,
+        divisionId: user.divisionId,
       };
     } else if (targetRoleId === 7) {
       where = {
@@ -465,11 +466,16 @@ export async function getUser(
     where,
     orderBy: [
       { roleId: 'asc' },
-      { departmentId: 'asc' },
-      { divisionId: 'asc' },
-      { officeId: 'asc' },
-      { unitId: 'asc' },
-      { posId: 'asc' },
+      // { departmentId: 'asc' },
+      // { divisionId: 'asc' },
+      // { officeId: 'asc' },
+      // { unitId: 'asc' },
+      {
+        position: {
+          poscodeId: 'asc',
+        },
+      },
+      { rank: 'asc' },
       { emp_code: 'asc' },
     ],
     select: {
@@ -478,23 +484,31 @@ export async function getUser(
       last_name: true,
       emp_code: true,
       empimg: true,
+      position: {
+        select: {
+          id: true,
+          pos_name: true,
+        },
+      },
     },
   });
 
   if (users.length === 0) return [];
 
-  const userIds = users.map((u) => u.id);
-  const evaluations = await prisma.total.findMany({
-    where: {
-      giverId: user.id,
-      receiverId: { in: userIds },
-    },
-    select: {
-      receiverId: true,
-    },
-  });
-
-  const evaluatedSet = new Set(evaluations.map((e) => e.receiverId));
+  let evaluatedSet = cachedEvaluatedSet;
+  if (!evaluatedSet) {
+    const userIds = users.map((u) => u.id);
+    const evaluations = await prisma.total.findMany({
+      where: {
+        giverId: user.id,
+        receiverId: { in: userIds },
+      },
+      select: {
+        receiverId: true,
+      },
+    });
+    evaluatedSet = new Set(evaluations.map((e) => e.receiverId));
+  }
 
   return users.map((u) => ({
     ...u,

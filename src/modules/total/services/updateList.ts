@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { AuthUser } from '../../../interfaces/auth-user.interface';
+import { countAll } from '../../user/services/countAll';
 
 export async function updateList(
   prisma: PrismaService,
@@ -28,9 +29,17 @@ export async function updateList(
   };
 
   // Only SuperAdmin (role 1) can bulk-approve across different givers;
-  // all other users can only approve evaluations they themselves created.
+  // all other users can only approve evaluations they themselves created,
+  // and must have completed evaluations for all assigned users.
   if (user.roleId !== 1) {
     where.giverId = user.id;
+
+    const counts = await countAll(prisma, user);
+    if (!counts.isAllCompleted) {
+      throw new BadRequestException(
+        `ທ່ານຍັງປະເມີນບໍ່ຄົບຕາມຈຳນວນທີ່ກຳນົດ (ຍັງເຫຼືອ ${counts.remaining} ທ່ານ)`,
+      );
+    }
   }
 
   const result = await prisma.total.updateMany({

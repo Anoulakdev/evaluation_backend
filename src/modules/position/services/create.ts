@@ -83,7 +83,9 @@ export async function createPosition(
       await Promise.all(
         batch.map((d) => {
           const poscodeId =
-            d.poscodeId && validPosCodeIds.has(d.poscodeId) ? d.poscodeId : null;
+            d.poscodeId && validPosCodeIds.has(d.poscodeId)
+              ? d.poscodeId
+              : null;
 
           return tx.position.upsert({
             where: { id: d.id },

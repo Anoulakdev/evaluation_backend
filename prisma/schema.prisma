@@ -27,6 +27,7 @@ model User {
   tel          String?     @db.VarChar(255)
   email        String?     @db.VarChar(255)
   empimg       String?     @db.VarChar(255)
+  rank         Int?
   posId        Int?
   position     Position?   @relation(fields: [posId], references: [id])
   departmentId Int?

@@ -153,8 +153,14 @@ export async function findAllUser(
     where.AND = andFilters;
   }
 
-  const page = options.page ? Number(options.page) : undefined;
-  const limit = options.limit ? Number(options.limit) : undefined;
+  const page =
+    options.page !== undefined
+      ? Math.max(1, Number(options.page) || 1)
+      : undefined;
+  const limit =
+    options.limit !== undefined
+      ? Math.max(1, Number(options.limit) || 10)
+      : undefined;
 
   const select = {
     id: true,
@@ -174,6 +180,7 @@ export async function findAllUser(
     officeId: true,
     unitId: true,
     posId: true,
+    rank: true,
     department: true,
     division: true,
     office: true,
@@ -194,7 +201,10 @@ export async function findAllUser(
       },
     },
     {
-      id: 'asc',
+      rank: 'asc',
+    },
+    {
+      emp_code: 'asc',
     },
   ];
 

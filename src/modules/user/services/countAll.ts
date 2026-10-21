@@ -20,6 +20,8 @@ export interface CountAllResult {
   uniqueTotal: number;
   uniqueEvaluated: number;
   uniqueRemaining: number;
+  approvedCount: number;
+  isAllApproved: boolean;
   roles: RoleEvaluationSummary[];
 }
 
@@ -39,14 +41,24 @@ export async function countAll(
       uniqueTotal: 0,
       uniqueEvaluated: 0,
       uniqueRemaining: 0,
+      approvedCount: 0,
+      isAllApproved: false,
       roles: [],
     };
   }
 
-  // 2. ดึงรายชื่อพนักงานที่ต้องประเมินในแต่ละบทบาทแบบขนาน (Parallel)
+  // 2. ดึงข้อมูล Total ทั้งหมดของ user คนนี้เพียงครั้งเดียว เพื่อใช้คำนวณและลดการ Query ซ้ำซ้อน (Eliminate N+1)
+  const userTotals = await prisma.total.findMany({
+    where: { giverId: user.id },
+    select: { id: true, receiverId: true, approve: true },
+  });
+  const evaluatedSet = new Set(userTotals.map((t) => t.receiverId));
+  const approvedCount = userTotals.filter((t) => t.approve).length;
+
+  // 3. ดึงรายชื่อพนักงานที่ต้องประเมินในแต่ละบทบาทแบบขนาน โดยส่ง evaluatedSet เข้าไป
   const roleResults = await Promise.all(
     roles.map(async (role) => {
-      const usersInRole = await getUser(prisma, user, role.id);
+      const usersInRole = await getUser(prisma, user, role.id, evaluatedSet);
       const total = usersInRole.length;
       const evaluated = usersInRole.filter((u) => u.isEvaluated).length;
       const remaining = Math.max(0, total - evaluated);
@@ -63,7 +75,7 @@ export async function countAll(
     }),
   );
 
-  // 3. สรุปรวมสถิติทั้งหมด
+  // 4. สรุปรวมสถิติทั้งหมด
   let total = 0;
   let evaluated = 0;
   const uniqueUsers = new Set<number>();
@@ -95,6 +107,12 @@ export async function countAll(
   const uniqueEvaluated = uniqueEvaluatedUsers.size;
   const uniqueRemaining = Math.max(0, uniqueTotal - uniqueEvaluated);
 
+  const isAllApproved =
+    total > 0 &&
+    remaining === 0 &&
+    userTotals.length >= total &&
+    approvedCount === userTotals.length;
+
   return {
     total,
     evaluated,
@@ -103,6 +121,8 @@ export async function countAll(
     uniqueTotal,
     uniqueEvaluated,
     uniqueRemaining,
+    approvedCount,
+    isAllApproved,
     roles: roleSummaries,
   };
 }

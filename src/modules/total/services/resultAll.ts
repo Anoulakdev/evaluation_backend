@@ -86,8 +86,7 @@ function computeReceiverScore(
 
     const weightA = Number(((avgSupervisor * 50) / 100).toFixed(2));
 
-    const avg9True =
-      getAvg((i) => i.roleId === 9 && i.together === true) || 0;
+    const avg9True = getAvg((i) => i.roleId === 9 && i.together === true) || 0;
     const weightB = Number(((avg9True * 25) / 100).toFixed(2));
 
     const avg10 = getAvg((i) => i.roleId === 10) || 0;
@@ -542,11 +541,20 @@ export async function resultAll(
 
   const orderBy: Prisma.UserOrderByWithRelationInput[] = [
     { roleId: 'asc' },
-    { departmentId: 'asc' },
-    { divisionId: 'asc' },
-    { officeId: 'asc' },
-    { unitId: 'asc' },
-    { posId: 'asc' },
+    // { departmentId: 'asc' },
+    {
+      division: {
+        division_code: 'asc',
+      },
+    },
+    // { officeId: 'asc' },
+    // { unitId: 'asc' },
+    {
+      position: {
+        poscodeId: 'asc',
+      },
+    },
+    { rank: 'asc' },
     { emp_code: 'asc' },
   ];
 

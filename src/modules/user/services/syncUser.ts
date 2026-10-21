@@ -245,7 +245,8 @@ export async function syncUser(prisma: PrismaService, departmentId: number) {
             unitId: rawUnitId && validUnitIds.has(rawUnitId) ? rawUnitId : null,
           };
 
-          const { roleId: _roleId, ...updateData } = userData;
+          const updateData = { ...userData };
+          delete (updateData as { roleId?: number }).roleId;
 
           return tx.user.upsert({
             where: { username: emp.emp_code },
