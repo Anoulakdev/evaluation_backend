@@ -215,10 +215,18 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
       supervisorRoleId = fallbackRoleId;
     }
 
-    const weightA = Number(((avgSupervisor * 50) / 100).toFixed(2));
+    const rawAvg9True = getAvg((i) => i.roleId === 9 && i.together === true);
+    const hasAvg9True = rawAvg9True !== null;
+    const supervisorWeight = hasAvg9True ? 50 : 75;
 
-    const avg9True = getAvg((i) => i.roleId === 9 && i.together === true) || 0;
-    const weightB = Number(((avg9True * 25) / 100).toFixed(2));
+    const weightA = Number(
+      ((avgSupervisor * supervisorWeight) / 100).toFixed(2),
+    );
+
+    const avg9True = rawAvg9True ?? 0;
+    const weightB = hasAvg9True
+      ? Number(((avg9True * 25) / 100).toFixed(2))
+      : 0;
 
     const avg10 = getAvg((i) => i.roleId === 10) || 0;
     const weightC = Number(((avg10 * 25) / 100).toFixed(2));
@@ -230,16 +238,18 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
       branch_id: branchId,
       groupA: {
         label: getRoleName(supervisorRoleId),
-        weight_percent: 50,
+        weight_percent: supervisorWeight,
         avg_score: avgSupervisor,
         weighted_score: weightA,
       },
-      groupB: {
-        label: `${getRoleName(9)} (ພາຍໃນ)`,
-        weight_percent: 25,
-        avg_score: avg9True,
-        weighted_score: weightB,
-      },
+      groupB: hasAvg9True
+        ? {
+            label: `${getRoleName(9)} (ພາຍໃນ)`,
+            weight_percent: 25,
+            avg_score: avg9True,
+            weighted_score: weightB,
+          }
+        : null,
       groupC: {
         label: getRoleName(10),
         weight_percent: 25,

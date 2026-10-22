@@ -65,15 +65,15 @@ export async function resultList(prisma: PrismaService, user: AuthUser) {
       { receiver: { roleId: 'asc' } },
       {
         receiver: {
-          division: {
-            division_code: 'asc',
+          position: {
+            poscodeId: 'asc',
           },
         },
       },
       {
         receiver: {
-          position: {
-            poscodeId: 'asc',
+          division: {
+            division_code: 'asc',
           },
         },
       },

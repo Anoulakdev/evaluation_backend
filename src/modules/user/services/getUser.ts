@@ -475,6 +475,7 @@ export async function getUser(
           poscodeId: 'asc',
         },
       },
+      { divisionId: 'asc' },
       { rank: 'asc' },
       { emp_code: 'asc' },
     ],
