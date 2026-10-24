@@ -1,9 +1,10 @@
 import {
   IsNotEmpty,
-  IsString,
   IsInt,
   IsOptional,
   IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class CreateTotalDto {
@@ -12,26 +13,38 @@ export class CreateTotalDto {
   receiverId: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_1: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_2: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_3: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_4: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_5: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s1_6: number;
 
@@ -40,22 +53,32 @@ export class CreateTotalDto {
   s1_score?: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s2_1: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s2_2: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s2_3: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s2_4: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s2_5: number;
 
@@ -64,14 +87,20 @@ export class CreateTotalDto {
   s2_score?: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s3_1: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s3_2: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s3_3: number;
 
@@ -80,10 +109,14 @@ export class CreateTotalDto {
   s3_score?: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s4_1: number;
 
   @IsInt()
+  @Min(0)
+  @Max(10)
   @IsNotEmpty()
   s4_2: number;
 

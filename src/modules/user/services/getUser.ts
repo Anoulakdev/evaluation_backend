@@ -11,7 +11,14 @@ export async function getUser(
   let where: Prisma.UserWhereInput | undefined;
   const targetRoleId = Number(roleId);
 
-  if (user.roleId === 9 && user.division?.branch_id === 1) {
+  if (user.roleId === 15) {
+    if (targetRoleId === 10) {
+      where = {
+        id: user.id,
+        status: 'A',
+      };
+    }
+  } else if (user.roleId === 9 && user.division?.branch_id === 1) {
     if (targetRoleId === 6) {
       where = {
         roleId: targetRoleId,
@@ -415,6 +422,11 @@ export async function getUser(
         status: 'A',
         departmentId: { in: targetDepts },
       };
+    } else if (targetRoleId === 15) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+      };
     } else if (targetRoleId === 10) {
       where = {
         id: user.id,
@@ -444,6 +456,11 @@ export async function getUser(
         roleId: targetRoleId,
         status: 'A',
         departmentId: { in: targetDepts },
+      };
+    } else if (targetRoleId === 15) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
       };
     }
   }

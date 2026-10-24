@@ -5,7 +5,7 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   if (user.roleId === 1 || user.roleId === 13 || user.roleId === 14) {
     return prisma.role.findMany({
       where: {
-        id: { in: [2, 3, 4, 5, 6, 7, 8, 9] },
+        id: { in: [2, 3, 4, 5, 6, 7, 8, 9, 15] },
       },
       orderBy: {
         id: 'asc',
@@ -15,6 +15,15 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
     return prisma.role.findMany({
       where: {
         id: { in: [1, 12, 13, 14] },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+  } else if (user.roleId === 15) {
+    return prisma.role.findMany({
+      where: {
+        id: { in: [10] },
       },
       orderBy: {
         id: 'asc',
@@ -104,14 +113,14 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 3) {
     return prisma.role.findMany({
       where: {
-        id: { in: [3, 4, 5, 10] },
+        id: { in: [3, 4, 5, 15, 10] },
       },
       orderBy: {
         id: 'asc',
       },
     });
   } else if (user.roleId === 2) {
-    const allowedRoles = Number(user.id) === 8 ? [4, 5] : [3, 4, 5];
+    const allowedRoles = Number(user.id) === 8 ? [4, 5] : [3, 4, 5, 15];
     return prisma.role.findMany({
       where: {
         id: { in: allowedRoles },

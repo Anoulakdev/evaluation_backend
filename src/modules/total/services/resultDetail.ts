@@ -1,14 +1,30 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+const ROLE_NAMES: Record<number, string> = {
+  2: 'ຜູ້ອຳນວຍການ',
+  3: 'ຮອງຜູ້ອຳນວຍການ',
+  4: 'ຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
+  5: 'ຮອງຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
+  6: 'ຄະນະພະແນກ/ສູນ/ສາຂາ',
+  7: 'ຄະນະຫ້ອງການ',
+  8: 'ຄະນະໜ່ວຍງານ',
+  9: 'ວິຊາການ',
+  10: 'ປະເມີນຕົນເອງ',
+  15: 'ຮອງ ຜອ IPP',
+};
+
 export async function resultDetail(prisma: PrismaService, emp_code: string) {
   if (!emp_code || !emp_code.trim()) {
     throw new BadRequestException('emp_code is required');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
-      emp_code: emp_code.trim(),
+      emp_code: {
+        equals: emp_code.trim(),
+        mode: 'insensitive',
+      },
     },
     select: {
       id: true,
@@ -33,14 +49,7 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
     },
     orderBy: [
       { roleId: 'asc' },
-      {
-        receiver: {
-          position: {
-            poscodeId: 'asc',
-          },
-        },
-      },
-      { receiver: { rank: 'asc' } },
+      { giverId: 'asc' },
     ],
     include: {
       giver: {
@@ -83,7 +92,9 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
 
       if (item.together) {
         const targetRole = item.roleId;
-        if (targetRole === 8) {
+        if (targetRole === 9) {
+          suffix = ' (ພາຍໃນ)';
+        } else if (targetRole === 8) {
           suffix = ' (ພາຍໃນໜ່ວຍງານ)';
         } else if (targetRole === 7) {
           suffix = ' (ພາຍໃນຫ້ອງການ)';
@@ -182,22 +193,41 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
   // Helper to resolve role name in Lao
   const getRoleName = (id: number): string => {
     const found = total.find((t) => t.roleId === id)?.role?.name;
-    if (found) return found;
-    const roleMap: Record<number, string> = {
-      2: 'ຜູ້ອຳນວຍການ',
-      3: 'ຮອງຜູ້ອຳນວຍການ',
-      4: 'ຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
-      5: 'ຮອງຫົວໜ້າຝ່າຍ/ສະຖາບັນ/ຫ້ອງການ',
-      6: 'ຄະນະພະແນກ/ສູນ/ສາຂາ',
-      7: 'ຄະນະຫ້ອງການ',
-      8: 'ຄະນະໜ່ວຍງານ',
-      9: 'ວິຊາການ',
-      10: 'ປະເມີນຕົນເອງ',
-    };
-    return roleMap[id] || `Role ${id}`;
+    return found || ROLE_NAMES[id] || `Role ${id}`;
   };
 
-  if (receiverRoleId === 9) {
+  if (receiverRoleId === 15) {
+    // ----------------------------------------------------
+    // ROLE ID 15 (ຮອງ ຜອ IPP)
+    // ----------------------------------------------------
+    const avg2 = getAvg((i) => i.roleId === 2);
+    const avg3 = getAvg((i) => i.roleId === 3);
+    const combinedSuperiors = getCombined([avg2, avg3]);
+    const weightA = Number(((combinedSuperiors * 85) / 100).toFixed(2));
+
+    const avg10 = getAvg((i) => i.roleId === 10) || 0;
+    const weightB = Number(((avg10 * 15) / 100).toFixed(2));
+
+    const finalTotal = Number((weightA + weightB).toFixed(2));
+
+    weightedCalculation = {
+      receiver_roleId: 15,
+      branch_id: branchId,
+      groupA: {
+        label: `${getRoleName(2)} + ${getRoleName(3)}`,
+        weight_percent: 85,
+        avg_score: combinedSuperiors,
+        weighted_score: weightA,
+      },
+      groupB: {
+        label: getRoleName(10),
+        weight_percent: 15,
+        avg_score: avg10,
+        weighted_score: weightB,
+      },
+      final_weighted_total: finalTotal,
+    };
+  } else if (receiverRoleId === 9) {
     // ----------------------------------------------------
     // ROLE ID 9 (ວິຊາການ)
     // ----------------------------------------------------
@@ -217,7 +247,7 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
 
     const rawAvg9True = getAvg((i) => i.roleId === 9 && i.together === true);
     const hasAvg9True = rawAvg9True !== null;
-    const supervisorWeight = hasAvg9True ? 50 : 75;
+    const supervisorWeight = hasAvg9True ? 60 : 85;
 
     const weightA = Number(
       ((avgSupervisor * supervisorWeight) / 100).toFixed(2),
@@ -229,7 +259,7 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
       : 0;
 
     const avg10 = getAvg((i) => i.roleId === 10) || 0;
-    const weightC = Number(((avg10 * 25) / 100).toFixed(2));
+    const weightC = Number(((avg10 * 15) / 100).toFixed(2));
 
     const finalTotal = Number((weightA + weightB + weightC).toFixed(2));
 
@@ -252,7 +282,7 @@ export async function resultDetail(prisma: PrismaService, emp_code: string) {
         : null,
       groupC: {
         label: getRoleName(10),
-        weight_percent: 25,
+        weight_percent: 15,
         avg_score: avg10,
         weighted_score: weightC,
       },

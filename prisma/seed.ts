@@ -36,6 +36,7 @@ async function main() {
       { id: 12, name: 'Boss' },
       { id: 13, name: 'AdminDepartment' },
       { id: 14, name: 'AdminBranch' },
+      { id: 15, name: 'IPP' },
     ];
     for (const r of roles) {
       await prisma.role.upsert({
