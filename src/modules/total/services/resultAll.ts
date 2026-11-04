@@ -163,6 +163,9 @@ function computeReceiverScore(
     // ----------------------------------------------------
     // ROLE ID 8 (ຄະນະໜ່ວຍງານ)
     // ----------------------------------------------------
+    const isDivision154 =
+      Number(receiver.divisionId) === 154 || receiver.division?.id === 154;
+
     const avg8True = getAvg((i) => i.roleId === 8 && i.together === true);
     const avg9 = getAvg((i) => i.roleId === 9);
     const avgGroupA = getCombined([avg8True, avg9]);
@@ -172,7 +175,7 @@ function computeReceiverScore(
       getAvg((i) => i.roleId === 8 && i.together === false) || 0;
     const weightB = Number(((avgGroupB * 20) / 100).toFixed(2));
 
-    const targetMiddleRoleId = branchId === 2 ? 7 : 6;
+    const targetMiddleRoleId = branchId === 2 || isDivision154 ? 7 : 6;
     const avgMiddle = getAvg((i) => i.roleId === targetMiddleRoleId) || 0;
     const weightC = Number(((avgMiddle * 30) / 100).toFixed(2));
 
@@ -197,7 +200,8 @@ function computeReceiverScore(
         weighted_score: weightB,
       },
       groupC: {
-        label: branchId === 2 ? getRoleName(7) : getRoleName(6),
+        label:
+          branchId === 2 || isDivision154 ? getRoleName(7) : getRoleName(6),
         weight_percent: 30,
         avg_score: avgMiddle,
         weighted_score: weightC,
@@ -276,7 +280,14 @@ function computeReceiverScore(
     // ROLE ID 6 (ຄະນະພະແນກ/ສູນ/ສາຂາ)
     // ----------------------------------------------------
     let combinedSubordinates = 0;
+    const isDivision154 =
+      Number(receiver.divisionId) === 154 || receiver.division?.id === 154;
+
     if (branchId === 2) {
+      const avg7 = getAvg((i) => i.roleId === 7);
+      const avg8 = getAvg((i) => i.roleId === 8);
+      combinedSubordinates = getCombined([avg7, avg8]);
+    } else if (isDivision154) {
       const avg7 = getAvg((i) => i.roleId === 7);
       const avg8 = getAvg((i) => i.roleId === 8);
       combinedSubordinates = getCombined([avg7, avg8]);
@@ -313,7 +324,7 @@ function computeReceiverScore(
       branch_id: branchId,
       groupA: {
         label:
-          branchId === 2
+          branchId === 2 || isDivision154
             ? `${getRoleName(7)} + ${getRoleName(8)}`
             : `${getRoleName(8)} + ${getRoleName(9)}`,
         weight_percent: 25,

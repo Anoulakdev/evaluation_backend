@@ -25,6 +25,14 @@ export async function getUser(
         status: 'A',
         divisionId: user.divisionId,
       };
+    } else if (targetRoleId === 7) {
+      if (Number(user.divisionId) === 154) {
+        where = {
+          roleId: targetRoleId,
+          status: 'A',
+          unitId: user.unitId,
+        };
+      }
     } else if (targetRoleId === 8) {
       where = {
         roleId: targetRoleId,
@@ -87,6 +95,14 @@ export async function getUser(
         status: 'A',
         divisionId: user.divisionId,
       };
+    } else if (targetRoleId === 7) {
+      if (Number(user.divisionId) === 154) {
+        where = {
+          roleId: targetRoleId,
+          status: 'A',
+          unitId: user.unitId,
+        };
+      }
     } else if (targetRoleId === 8) {
       where = {
         roleId: targetRoleId,
@@ -150,7 +166,13 @@ export async function getUser(
         divisionId: user.divisionId,
       };
     } else if (targetRoleId === 8) {
-      if (!user.officeId) {
+      if (Number(user.divisionId) === 154) {
+        where = {
+          roleId: targetRoleId,
+          status: 'A',
+          unitId: user.unitId,
+        };
+      } else if (!user.officeId) {
         where = undefined;
       } else {
         // 1 & 2. ดึงหน่วยงานและพนักงานภายใต้ห้องการนี้แบบขนาน (Parallel)
@@ -234,6 +256,14 @@ export async function getUser(
         status: 'A',
         departmentId: user.departmentId,
       };
+    } else if (targetRoleId === 7) {
+      if (Number(user.divisionId) === 154) {
+        where = {
+          roleId: targetRoleId,
+          status: 'A',
+          divisionId: user.divisionId,
+        };
+      }
     } else if (targetRoleId === 8) {
       if (!user.divisionId) {
         where = undefined;
