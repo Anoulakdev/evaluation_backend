@@ -49,6 +49,7 @@ export class UserController {
     @Query('officeId') officeId?: number,
     @Query('unitId') unitId?: number,
     @Query('posId') posId?: number,
+    @Query('isEvaluated') isEvaluated?: string,
   ) {
     return this.userService.findAll(req.user, {
       page,
@@ -61,6 +62,7 @@ export class UserController {
       officeId,
       unitId,
       posId,
+      isEvaluated,
     });
   }
 

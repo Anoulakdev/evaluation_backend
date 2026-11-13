@@ -13,6 +13,7 @@ export interface FindAllUserOptions {
   officeId?: number;
   unitId?: number;
   posId?: number;
+  isEvaluated?: boolean | string;
 }
 
 export async function findAllUser(
@@ -149,6 +150,31 @@ export async function findAllUser(
     }
   }
 
+  if (
+    options.isEvaluated !== undefined &&
+    options.isEvaluated !== null &&
+    options.isEvaluated !== ('' as unknown) &&
+    options.isEvaluated !== 'ALL'
+  ) {
+    const isEval =
+      options.isEvaluated === true || options.isEvaluated === 'true';
+    if (isEval) {
+      andFilters.push({
+        givers: {
+          some: { approve: true },
+          none: { approve: false },
+        },
+      });
+    } else {
+      andFilters.push({
+        OR: [
+          { givers: { none: { approve: true } } },
+          { givers: { some: { approve: false } } },
+        ],
+      });
+    }
+  }
+
   if (andFilters.length > 0) {
     where.AND = andFilters;
   }
@@ -212,7 +238,7 @@ export async function findAllUser(
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const [data, total] = await Promise.all([
+    const [rawUsers, total] = await Promise.all([
       prisma.user.findMany({
         where,
         orderBy,
@@ -223,6 +249,7 @@ export async function findAllUser(
       prisma.user.count({ where }),
     ]);
 
+    const data = await attachEvaluationStatus(prisma, rawUsers);
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -234,9 +261,46 @@ export async function findAllUser(
     };
   }
 
-  return prisma.user.findMany({
+  const users = await prisma.user.findMany({
     where,
     orderBy,
     select,
   });
+
+  return attachEvaluationStatus(prisma, users);
+}
+
+async function attachEvaluationStatus(
+  prisma: PrismaService,
+  users: any[],
+) {
+  if (!users || users.length === 0) return [];
+
+  const userIds = users.map((u) => u.id);
+  const totals = await prisma.total.findMany({
+    where: {
+      giverId: { in: userIds },
+    },
+    select: {
+      giverId: true,
+      approve: true,
+    },
+    distinct: ['giverId', 'approve'],
+  });
+
+  const hasTrueSet = new Set<number>();
+  const hasFalseSet = new Set<number>();
+
+  for (const t of totals) {
+    if (t.approve) {
+      hasTrueSet.add(t.giverId);
+    } else {
+      hasFalseSet.add(t.giverId);
+    }
+  }
+
+  return users.map((u) => ({
+    ...u,
+    isEvaluated: hasTrueSet.has(u.id) && !hasFalseSet.has(u.id),
+  }));
 }
