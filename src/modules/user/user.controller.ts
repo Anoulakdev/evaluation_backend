@@ -103,13 +103,13 @@ export class UserController {
   }
 
   @Put('resetpassword/:id')
-  @Roles(1, 11, 13)
+  @Roles(1, 11, 13, 14)
   resetPassword(@Param('id') id: string) {
     return this.userService.resetPassword(+id);
   }
 
   @Delete('evaluation/:id')
-  @Roles(1, 11, 13)
+  @Roles(1, 11)
   deleteEvaluation(@Param('id') id: string) {
     return this.userService.deleteEvaluation(+id);
   }
