@@ -11,6 +11,7 @@ import {
 import { findOneDepartment } from './services/findone';
 import { syncData } from './services/syncData';
 import { selectDepartment } from './services/selectDepartment';
+import { updateStatus } from './services/updateStatus';
 
 @Injectable()
 export class DepartmentService {
@@ -22,6 +23,10 @@ export class DepartmentService {
 
   update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
     return updateDepartment(this.prisma, id, updateDepartmentDto);
+  }
+
+  updateStatus(id: number, actived: string) {
+    return updateStatus(this.prisma, id, actived);
   }
 
   syncData() {

@@ -62,6 +62,15 @@ export class DivisionController {
     return this.divisionService.findOne(+id);
   }
 
+  @Put('updatestatus/:id')
+  @Roles(1, 11)
+  updateStatus(
+    @Param('id') id: string,
+    @Query('actived') actived: string,
+  ) {
+    return this.divisionService.updateStatus(+id, actived);
+  }
+
   @Put(':id')
   @Roles(1)
   update(

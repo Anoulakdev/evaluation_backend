@@ -55,6 +55,15 @@ export class DepartmentController {
     return this.departmentService.findOne(+id);
   }
 
+  @Put('updatestatus/:id')
+  @Roles(1, 11)
+  updateStatus(
+    @Param('id') id: string,
+    @Query('actived') actived: string,
+  ) {
+    return this.departmentService.updateStatus(+id, actived);
+  }
+
   @Put(':id')
   @Roles(1)
   update(

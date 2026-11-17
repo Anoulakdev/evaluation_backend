@@ -15,6 +15,7 @@ import { removeUser } from './services/remove';
 import { syncUser } from './services/syncUser';
 import { getUser } from './services/getUser';
 import { countAll } from './services/countAll';
+import { deleteEvaluation } from './services/deleteEvaluation';
 
 @Injectable()
 export class UserService {
@@ -62,5 +63,9 @@ export class UserService {
 
   remove(id: number) {
     return removeUser(this.prisma, id);
+  }
+
+  deleteEvaluation(id: number) {
+    return deleteEvaluation(this.prisma, id);
   }
 }

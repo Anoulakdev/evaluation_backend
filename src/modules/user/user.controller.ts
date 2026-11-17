@@ -108,6 +108,12 @@ export class UserController {
     return this.userService.resetPassword(+id);
   }
 
+  @Delete('evaluation/:id')
+  @Roles(1, 11, 13)
+  deleteEvaluation(@Param('id') id: string) {
+    return this.userService.deleteEvaluation(+id);
+  }
+
   @Delete(':id')
   @Roles(1, 11, 13)
   remove(@Param('id') id: string) {

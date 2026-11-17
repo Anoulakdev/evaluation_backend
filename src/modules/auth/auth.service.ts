@@ -29,9 +29,19 @@ type User = {
   divisionId: number | null;
   officeId: number | null;
   unitId: number | null;
+  role?: {
+    id: number;
+    name: string;
+  } | null;
+  department?: {
+    id: number;
+    department_name: string | null;
+    department_status: string;
+  } | null;
   division: {
     id: number;
     branch_id: number | null;
+    division_status: string;
   } | null;
 };
 
@@ -72,10 +82,18 @@ export class AuthService {
             name: true,
           },
         },
+        department: {
+          select: {
+            id: true,
+            department_name: true,
+            department_status: true,
+          },
+        },
         division: {
           select: {
             id: true,
             branch_id: true,
+            division_status: true,
           },
         },
       },
@@ -87,6 +105,14 @@ export class AuthService {
 
     if (user.status !== 'A') {
       throw new ForbiddenException('ລະ​ຫັດ​ຂອງ​ທ່ານ​ໄດ້​ຖືກ​ປິດ​ການ​ໃຊ້​ງານ');
+    }
+
+    if (user.department && user.department.department_status !== 'A') {
+      throw new ForbiddenException('ຝ່າຍຂອງທ່ານໄດ້ຖືກປິດລະບົບແລ້ວ');
+    }
+
+    if (user.division && user.division.division_status !== 'A') {
+      throw new ForbiddenException('ພະແນກ / ສາຂາຂອງທ່ານໄດ້ຖືກປິດລະບົບແລ້ວ');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

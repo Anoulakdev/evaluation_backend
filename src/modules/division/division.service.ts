@@ -9,6 +9,7 @@ import { findAllDivision, FindAllDivisionOptions } from './services/findall';
 import { findOneDivision } from './services/findone';
 import { syncData } from './services/syncData';
 import { selectDivision } from './services/selectDivision';
+import { updateStatus } from './services/updateStatus';
 
 @Injectable()
 export class DivisionService {
@@ -20,6 +21,10 @@ export class DivisionService {
 
   update(id: number, updateDivisionDto: UpdateDivisionDto) {
     return updateDivision(this.prisma, id, updateDivisionDto);
+  }
+
+  updateStatus(id: number, actived: string) {
+    return updateStatus(this.prisma, id, actived);
   }
 
   syncData() {
