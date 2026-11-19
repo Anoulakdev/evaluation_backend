@@ -116,7 +116,7 @@ export async function selectRole(prisma: PrismaService, user: AuthUser) {
   } else if (user.roleId === 6 && user.division?.branch_id === 2) {
     return prisma.role.findMany({
       where: {
-        id: { in: [6, 7, 10] },
+        id: { in: [4, 5, 6, 7, 10] },
       },
       orderBy: {
         id: 'asc',

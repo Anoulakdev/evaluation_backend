@@ -331,7 +331,19 @@ export async function getUser(
       };
     }
   } else if (user.roleId === 6 && user.division?.branch_id === 2) {
-    if (targetRoleId === 6) {
+    if (targetRoleId === 4) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 5) {
+      where = {
+        roleId: targetRoleId,
+        status: 'A',
+        departmentId: user.departmentId,
+      };
+    } else if (targetRoleId === 6) {
       where = {
         roleId: targetRoleId,
         status: 'A',
