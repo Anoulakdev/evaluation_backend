@@ -76,6 +76,11 @@ export class UserController {
     return this.userService.countAll(req.user);
   }
 
+  @Get('evaluation-status')
+  getEvaluationStatus(@Req() req: UserRequest) {
+    return this.userService.getEvaluationStatus(req.user);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);

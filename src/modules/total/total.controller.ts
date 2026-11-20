@@ -36,13 +36,13 @@ export class TotalController {
   }
 
   @Get('/resultdetail')
-  @Roles(1, 12)
+  @Roles(12)
   resultDetail(@Query('emp_code') emp_code: string) {
     return this.totalService.resultDetail(emp_code);
   }
 
   @Get('/resultall')
-  @Roles(1, 12)
+  @Roles(12)
   resultAll(
     @Query('departmentId') departmentId?: number,
     @Query('divisionId') divisionId?: number,

@@ -16,6 +16,7 @@ import { syncUser } from './services/syncUser';
 import { getUser } from './services/getUser';
 import { countAll } from './services/countAll';
 import { deleteEvaluation } from './services/deleteEvaluation';
+import { getEvaluationStatus } from './services/evaluationStatus';
 
 @Injectable()
 export class UserService {
@@ -43,6 +44,10 @@ export class UserService {
 
   findOne(id: number) {
     return findOneUser(this.prisma, id);
+  }
+
+  getEvaluationStatus(user: AuthUser, id?: number) {
+    return getEvaluationStatus(this.prisma, user, id);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
